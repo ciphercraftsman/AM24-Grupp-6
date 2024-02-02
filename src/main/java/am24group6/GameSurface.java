@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,35 +18,33 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 /**
- * A simple panel with a space invaders "game" in it. This is just to
- * demonstrate the bare minimum of stuff than can be done drawing on a panel.
- * This is by no means good code, but rather a short demonstration on
- * some things one can do to make a very simple Swing based game.
- * 
- * If you really want to make a good game there are several toolkits for
- * game making out there which are much more suitable for this.
+ * A simple panel with game inside.
  * 
  */
 public class GameSurface extends JPanel implements KeyListener {
+    @Serial
     private static final long serialVersionUID = 6260582674762246325L;
-    private static Logger logger = Logger.getLogger(GameSurface.class.getName());
-
-    private transient FrameUpdater updater;
+    private static final Logger logger = Logger.getLogger(GameSurface.class.getName());
+    private final transient FrameUpdater updater;
     private boolean gameOver;
-    private Rectangle spaceShip;
-    private transient BufferedImage shipImageSprite;
-    private int shipImageSpriteCount;
+    private final Rectangle birb;
+    private transient BufferedImage birbImageSprite;
+    private int birbImageSpriteCount;
+    private final int gravity = 3;
+    private boolean isJumping = false;
+    private boolean firstJump = true;
 
-    public GameSurface(final int width) {
+    public GameSurface(final int width, final int height) {
+        // We don't have the graphics ready but will keep for later
         try {
-            this.shipImageSprite = ImageIO.read(new File("ship.png"));
-            this.shipImageSpriteCount = 0;
+            this.birbImageSprite = ImageIO.read(new File("birb.png"));
+            this.birbImageSpriteCount = 0;
         } catch (IOException ex) {
             logger.log(Level.WARNING, "Unable to load image", ex);
         }
 
         this.gameOver = false;
-        this.spaceShip = new Rectangle(20, width / 2 - 15, 46, 20);
+        this.birb = new Rectangle(width / 2 - 40, height / 2 - 80, 40, 40);
 
         this.updater = new FrameUpdater(this, 60);
         this.updater.setDaemon(true); // it should not keep the app running
@@ -70,28 +69,29 @@ public class GameSurface extends JPanel implements KeyListener {
         final Dimension d = this.getSize();
 
         if (gameOver) {
-            g.setColor(Color.red);
-            g.fillRect(0, 0, d.width, d.height);
-            g.setColor(Color.black);
-            g.setFont(new Font("Arial", Font.BOLD, 48));
-            g.drawString("Game over!", 20, d.width / 2 - 24);
+            // Code for game over event, customize in later sprint
+            //g.setColor(Color.red);
+            //g.fillRect(0, 0, d.width, d.height);
+            //g.setColor(Color.black);
+            //g.setFont(new Font("Arial", Font.BOLD, 48));
+            //g.drawString("Game over!", 20, d.width / 2 - 24);
             return;
         }
 
         // fill the background
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(Color.BLACK);
         g.fillRect(0, 0, d.width, d.height);
 
-   
 
-        // draw the space ship, as a cool image if it did load properly
-        if (shipImageSprite != null) {
-            int offset = 46 * shipImageSpriteCount;
-            g.drawImage(shipImageSprite, spaceShip.x, spaceShip.y, spaceShip.x + spaceShip.width,
-                    spaceShip.y + spaceShip.height, offset, 0, offset + 46, 20, null);
+        // keep this function for later when we have graphics
+        // draw the birb, as a cool image if it did load properly
+        if (birbImageSprite != null) {
+            int offset = 46 * birbImageSpriteCount;
+            g.drawImage(birbImageSprite, birb.x, birb.y, birb.x + birb.width,
+                    birb.y + birb.height, offset, 0, offset + 46, 20, null);
         } else {
-            g.setColor(Color.black);
-            g.fillRect(spaceShip.x, spaceShip.y, spaceShip.width, spaceShip.height);
+            g.setColor(Color.WHITE);
+            g.fillRect(birb.x, birb.y, birb.width, birb.height);
         }
     }
 
@@ -108,7 +108,15 @@ public class GameSurface extends JPanel implements KeyListener {
             return;
         }
 
-   
+        if (isJumping) {
+            birb.translate(0, -50);
+            isJumping = false;
+        }
+        else if (!firstJump) {
+            birb.translate(0, gravity);
+        }
+
+        repaint();
     }
 
     @Override
@@ -121,23 +129,24 @@ public class GameSurface extends JPanel implements KeyListener {
         }
 
         final int minHeight = 10;
-        final int maxHeight = this.getSize().height - spaceShip.height - 10;
-        final int kc = e.getKeyCode();
+        final int keyCode = e.getKeyCode();
 
-        if (kc == KeyEvent.VK_UP && spaceShip.y > minHeight) {
-            spaceShip.translate(0, -10);
-        } else if (kc == KeyEvent.VK_DOWN && spaceShip.y < maxHeight) {
-            spaceShip.translate(0, 10);
+        if (keyCode == KeyEvent.VK_SPACE && birb.y > minHeight) {
+            if (firstJump) {
+                firstJump = false;
+            }
+            isJumping = true;
         }
+        repaint();
     }
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // do nothing
+        // not needed in this project but must be overridden
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // do nothing
+        // not needed in this project but must be overridden
     }
 }

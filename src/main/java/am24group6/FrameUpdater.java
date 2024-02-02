@@ -3,17 +3,18 @@ import javax.swing.SwingUtilities;
 
 /**
  * This thread will try to run update() and repaint() on the given
- * GameSurface in accorance with the given fps. If the update() and
- * repaint() methods take too much time it will trigger as often as it
- * can, possibly running update() and repainting at the same time.
+ * GameSurface in accordance with the given frames per second.
+ * If the update() and repaint() methods take too much time it will
+ * trigger as often as it can, possibly running update() and
+ * repainting at the same time.
  */
 public class FrameUpdater extends Thread {
     private final long timeBetweenUpdates;
-    private GameSurface surface;
+    private final GameSurface surface;
 
-    public FrameUpdater(GameSurface surface, int fps) {
+    public FrameUpdater(GameSurface surface, int framesPerSecond) {
         this.surface = surface;
-        this.timeBetweenUpdates = Math.floorDiv(1_000_000_000, fps);
+        this.timeBetweenUpdates = Math.floorDiv(1_000_000_000, framesPerSecond);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class FrameUpdater extends Thread {
             // this could end up running at the same time as the
             // update() method above, which could lead to some
             // concurrency issues!
-            SwingUtilities.invokeLater(() -> surface.repaint());
+            SwingUtilities.invokeLater(surface::repaint);
 
             // sleep until within a millisecond of the target time
             // to avoid taking up all cpu and allow other things to run
