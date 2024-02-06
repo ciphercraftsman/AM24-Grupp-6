@@ -9,6 +9,6 @@ public class Obstacle {
 
     public Obstacle(int created, int x, int y) {
         this.created = created;
-        this.bounds = new Rectangle(x, y, 10, 10);
+        this.bounds = new Rectangle(x, y, 100, 200);
     }
 }

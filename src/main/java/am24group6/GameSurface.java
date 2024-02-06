@@ -1,4 +1,6 @@
 package am24group6;
+// import jdk.internal.icu.text.UnicodeSet;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,6 +13,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,11 +30,13 @@ public class GameSurface extends JPanel implements KeyListener {
     @Serial
     private static final long serialVersionUID = 6260582674762246325L;
     private static final Logger logger = Logger.getLogger(GameSurface.class.getName());
+    private static final double OBSTACLE_PIXELS_PER_MS = 0.12;
     private final transient FrameUpdater updater;
     private boolean gameOver;
     private final Rectangle birb;
     private transient BufferedImage birbImageSprite;
     private int birbImageSpriteCount;
+    private List<Obstacle> obstacles;
     private final int gravity = 3;
     private boolean isJumping = false;
     private boolean firstJump = true;
@@ -45,6 +52,7 @@ public class GameSurface extends JPanel implements KeyListener {
 
         this.gameOver = false;
         this.birb = new Rectangle(width / 2 - 40, height / 2 - 80, 40, 40);
+        this.obstacles = new ArrayList<>();
 
         this.updater = new FrameUpdater(this, 60);
         this.updater.setDaemon(true); // it should not keep the app running
@@ -82,6 +90,13 @@ public class GameSurface extends JPanel implements KeyListener {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, d.width, d.height);
 
+        // draw the obstacles
+        for (Obstacle obstacle : obstacles) {
+            Color[] colors = { Color.MAGENTA, Color.RED, Color.BLUE };
+            //g.setColor(Color.MAGENTA);
+            g.setColor(colors[ThreadLocalRandom.current().nextInt(colors.length)]);
+            g.fillRect(obstacle.bounds.x, obstacle.bounds.y, obstacle.bounds.width, obstacle.bounds.height);
+        }
 
         // keep this function for later when we have graphics
         // draw the birb, as a cool image if it did load properly
@@ -108,6 +123,30 @@ public class GameSurface extends JPanel implements KeyListener {
             return;
         }
 
+        // fill up with obstacles at start of game
+        if (obstacles.isEmpty()) {
+            addObstacle(time, d.height); // Hampus har även med randomX
+        }
+
+        final List<Obstacle> toRemove = new ArrayList<>();
+
+        for (Obstacle obstacle : obstacles) {
+            int timeElapsed = time - obstacle.created;
+            obstacle.bounds.x = (int) (d.width - (timeElapsed * OBSTACLE_PIXELS_PER_MS));
+            // Om hindret har vandrat utanför rutan lägger vi till det i listan över hinder att radera
+            if (obstacle.bounds.x + obstacle.bounds.width < 0) {
+                toRemove.add(obstacle);
+            }
+        }
+
+        // Remove used obstacles
+        obstacles.removeAll(toRemove);
+
+        // Add new obstacle
+        if (obstacles.size() < 1) {
+            addObstacle(time, d.height); // Hampus försökte förklara varför det blev så många hela tiden
+        }
+
         if (isJumping) {
             birb.translate(0, -50);
             isJumping = false;
@@ -119,6 +158,17 @@ public class GameSurface extends JPanel implements KeyListener {
         repaint();
     }
 
+    // Hampus version har en inparameter boolean randomX som vi kollar på senare
+    private void addObstacle(final int time, final int height) {
+        int newTime = time;
+        final int MIN_PIXELS_FROM_LEFT = 180;
+        final int MS_TO_TRAVEL_MIN_PIXELS = (int)(MIN_PIXELS_FROM_LEFT / OBSTACLE_PIXELS_PER_MS);
+        //newTime = time - här räknar man ut nån random grej
+
+        final int FAR_OFFSCREEN = 10000;
+        int y = 300; //ThreadLocalRandom.current().nextInt(20, height - 30); // här har Hampus nån random grej
+        obstacles.add(new Obstacle(newTime, FAR_OFFSCREEN, y));
+    }
     @Override
     public void keyReleased(KeyEvent e) {
         // this event triggers when we release a key and then
