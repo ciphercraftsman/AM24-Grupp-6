@@ -92,9 +92,7 @@ public class GameSurface extends JPanel implements KeyListener {
 
         // draw the obstacles
         for (Obstacle obstacle : obstacles) {
-            Color[] colors = { Color.MAGENTA, Color.RED, Color.BLUE };
-            //g.setColor(Color.MAGENTA);
-            g.setColor(colors[ThreadLocalRandom.current().nextInt(colors.length)]);
+            g.setColor(Color.MAGENTA);
             g.fillRect(obstacle.bounds.x, obstacle.bounds.y, obstacle.bounds.width, obstacle.bounds.height);
         }
 
@@ -131,9 +129,10 @@ public class GameSurface extends JPanel implements KeyListener {
         final List<Obstacle> toRemove = new ArrayList<>();
 
         for (Obstacle obstacle : obstacles) {
+            // Makes the obstacle move from right to left
             int timeElapsed = time - obstacle.created;
             obstacle.bounds.x = (int) (d.width - (timeElapsed * OBSTACLE_PIXELS_PER_MS));
-            // Om hindret har vandrat utanför rutan lägger vi till det i listan över hinder att radera
+            // If obstacle moved out of the screen, add to list for removal
             if (obstacle.bounds.x + obstacle.bounds.width < 0) {
                 toRemove.add(obstacle);
             }
@@ -143,8 +142,11 @@ public class GameSurface extends JPanel implements KeyListener {
         obstacles.removeAll(toRemove);
 
         // Add new obstacle
-        if (obstacles.size() < 1) {
-            addObstacle(time, d.height); // Hampus försökte förklara varför det blev så många hela tiden
+//        if (obstacles.size() < 100) {
+//            addObstacle(time, d.height); // Hampus försökte förklara varför det blev så många hela tiden
+//        }
+        for (int i = 0; i < toRemove.size(); ++i) {
+            addObstacle(time, d.height);
         }
 
         if (isJumping) {
@@ -161,12 +163,14 @@ public class GameSurface extends JPanel implements KeyListener {
     // Hampus version har en inparameter boolean randomX som vi kollar på senare
     private void addObstacle(final int time, final int height) {
         int newTime = time;
-        final int MIN_PIXELS_FROM_LEFT = 180;
-        final int MS_TO_TRAVEL_MIN_PIXELS = (int)(MIN_PIXELS_FROM_LEFT / OBSTACLE_PIXELS_PER_MS);
-        //newTime = time - här räknar man ut nån random grej
+        final int MIN_PIXELS_FROM_LEFT = 10000;
+//        final int MS_TO_TRAVEL_MIN_PIXELS = (int)(MIN_PIXELS_FROM_LEFT / OBSTACLE_PIXELS_PER_MS);
+//        newTime = time - ThreadLocalRandom.current().nextInt(MS_TO_TRAVEL_MIN_PIXELS);
 
         final int FAR_OFFSCREEN = 10000;
-        int y = 300; //ThreadLocalRandom.current().nextInt(20, height - 30); // här har Hampus nån random grej
+        // y changes height placement of obstacle
+        int y = 400;
+        //int y = ThreadLocalRandom.current().nextInt(20, height - 30); placerar ut random i höjdled
         obstacles.add(new Obstacle(newTime, FAR_OFFSCREEN, y));
     }
     @Override
