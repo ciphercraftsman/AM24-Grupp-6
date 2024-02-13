@@ -77,12 +77,12 @@ public class GameSurface extends JPanel implements KeyListener {
         final Dimension d = this.getSize();
 
         if (gameOver) {
-            // Code for game over event, customize in later sprint
-            //g.setColor(Color.red);
-            //g.fillRect(0, 0, d.width, d.height);
-            //g.setColor(Color.black);
-            //g.setFont(new Font("Arial", Font.BOLD, 48));
-            //g.drawString("Game over!", 20, d.width / 2 - 24);
+           // Code for game over event, customize in later sprint
+            g.setColor(Color.red);
+            g.fillRect(0, 0, d.width, d.height);
+            g.setColor(Color.black);
+            g.setFont(new Font("Arial", Font.BOLD, 48));
+            g.drawString("Game over!", 20, d.width / 2 - 24);
             return;
         }
 
@@ -155,7 +155,11 @@ public class GameSurface extends JPanel implements KeyListener {
         }
         else if (!firstJump) {
             birb.translate(0, gravity);
+
+            if (birb.y + birb.height >= d.height) {
+                gameOver = true;
         }
+    }
 
         repaint();
     }
