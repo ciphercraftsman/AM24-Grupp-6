@@ -31,7 +31,7 @@ public class GameSurface extends JPanel implements KeyListener {
     private static final long serialVersionUID = 6260582674762246325L;
     private static final Logger logger = Logger.getLogger(GameSurface.class.getName());
     private static final double OBSTACLE_PIXELS_PER_MS = 0.12;
-    private final transient FrameUpdater updater;
+    private transient FrameUpdater updater;
     private boolean gameOver;
     private final Rectangle birb;
     private transient BufferedImage birbImageSprite;
@@ -183,6 +183,9 @@ public class GameSurface extends JPanel implements KeyListener {
         // we will move the space ship if the game is not over yet
 
         if (gameOver) {
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                resetGame();
+            }
             return;
         }
 
@@ -207,4 +210,20 @@ public class GameSurface extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e) {
         // not needed in this project but must be overridden
     }
+
+    private void resetGame() {
+        birb.setLocation(getWidth() / 2 - 40, getHeight() / 2 - 80);
+        obstacles.clear();
+        gameOver = false;
+        isJumping = false;
+        firstJump = true;
+
+        if (!updater.isAlive()) {
+            updater = new FrameUpdater(this, 60);
+            updater.setDaemon(true);
+            updater.start();
+
+        repaint();
+    }
+}
 }
