@@ -8,8 +8,8 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  */
 public class App {
     public static void main(String[] args) {
-        final int frameWidth = 600;
-        final int frameHeight = 600;
+        final int frameWidth = 360;
+        final int frameHeight = 640;
         
         JFrame main = new JFrame("Jumpy Birb");
 
@@ -18,11 +18,12 @@ public class App {
         main.setResizable(false);
         main.setDefaultCloseOperation(EXIT_ON_CLOSE);
         
-        GameSurface gameSurface = new GameSurface(frameWidth, frameHeight);
+        Game game = new Game();
         
-        main.add(gameSurface);
-        //main.pack();
-        main.addKeyListener(gameSurface);
+        main.add(game);
+        main.pack();
+        game.requestFocus();
+        //main.addKeyListener(game);
         main.setVisible(true);
     }
 }
