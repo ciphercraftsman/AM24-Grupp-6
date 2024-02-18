@@ -164,7 +164,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
             if(!obstacle.passed && bird.x > obstacle.x + obstacle.width) {
                 obstacle.passed = true;
-                score += 0.5; // 0.5 poäng per hinder för att de är två hinder, ett övre och ett nedre.
+                score += 0.5; // 0.5 poäng per hinder för att de räknas som två hinder, ett övre och ett nedre.
             }
 
             // Om fågeln kraschar med obstacles = gameOver.
@@ -173,7 +173,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             }
         }
 
-        // GameOver 
+        // GameOver om fågeln touchar rutans underkant
         if (bird.y > frameHeight) {
             gameOver = true;
         }
