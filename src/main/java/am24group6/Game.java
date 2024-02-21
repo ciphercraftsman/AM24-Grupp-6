@@ -7,33 +7,21 @@ import java.util.Random;
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
-    int frameWidth = 360;
-    int frameHeight = 640;
+    final int frameWidth = 360;
+    final int frameHeight = 640;
 
     // Images
     Image backgroundImage;
-    Image birdImage;
+    Image birbImage;
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
 
-    // Bird placement & size
-    int birdX = frameWidth / 8;
-    int birdY = frameHeight / 2;
-    int birdWidth = 34;
-    int birdHeight = 34;
-
-    class Bird {
-        int x = birdX;
-        int y = birdY;
-        int width = birdWidth;
-        int height = birdHeight;
-        Image img;
-
-        Bird(Image img) {
-            this.img = img;
-        }
-    }
+    // Birb placement & size
+    int birbX = frameWidth / 8;
+    int birbY = frameHeight / 2;
+    int birbWidth = 46;
+    int birbHeight = 19;    
 
     // Obstacles
     int obstacleX = frameWidth;
@@ -41,25 +29,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     int obstacleWidth = 64;
     int obstacleHeight = 512;
 
-    class Obstacle {
-        int x = obstacleX;
-        int y = obstacleY;
-        int width = obstacleWidth;
-        int height = obstacleHeight;
-        Image img;
-        boolean passed = false; // kollar om fågeln har tagit sig förbi hindret och används för att hålla koll
-        // på poängen.
-
-        Obstacle(Image img) {
-            this.img = img;
-        }
-    }
+    
 
     // game logic
-    Bird bird;
+    Birb birb;
     int velocityX = -4; // Flyttar obstacles åt vänster (farten)
     int velocityY = 0; // Justerar fågelns upp/ner fart.
-    int gravity = 1;
+    int gravity = 5;
 
     ArrayList<Obstacle> obstacles;
     Random random = new Random();
@@ -70,30 +46,30 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     double score = 0;
 
 
-    Game() {
+    Game(int frameWidth, int frameHeight) {
         setPreferredSize(new Dimension(frameWidth, frameHeight));
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
 
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("./background.png")).getImage();
-        birdImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
+        backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
-        // bottomObstacleImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
+        // topObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
+        // bottomObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
 
         // Fågel
-        bird = new Bird(birdImage);
-        obstacles = new ArrayList<Obstacle>();
+        birb = new Birb(frameWidth, frameHeight);
+        obstacles = new ArrayList<>();
 
         // Place obstacles timer
         placePipeTimer = new Timer(1500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                placePipes();
+                placeObstacles();
             }
         });
         placePipeTimer.start();
@@ -105,22 +81,23 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         
     }
 
-    public void placePipes() {
+    public void placeObstacles() {
         // Avgör vilken höjd obstacles hamnar på.
         int randomObstacleY = (int) (obstacleY - obstacleHeight/4 - Math.random()*(obstacleHeight/2));
         int openingSpace = frameHeight/4; 
 
         // Top obstacle
-        Obstacle topObstacle = new Obstacle(obstacleImage);
-        topObstacle.y = randomObstacleY;
+        Obstacle topObstacle = new Obstacle(frameWidth);
+        topObstacle.setY(randomObstacleY);
         obstacles.add(topObstacle);
 
         // Nedre obstacle
-        Obstacle bottomObstacle = new Obstacle(obstacleImage);
-        bottomObstacle.y = topObstacle.y + obstacleHeight + openingSpace;
+        Obstacle bottomObstacle = new Obstacle(frameWidth);
+        bottomObstacle.setY(topObstacle.getY() + obstacleHeight + openingSpace);
         obstacles.add(bottomObstacle);
     }
 
+    @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         draw(g);
@@ -130,13 +107,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // background
         g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
 
-        // bird
-        g.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height, null);
+        // birb
+        g.drawImage(birb.getImage(), birb.getX(), birb.getY(), birb.getWidth(), birb.getHeight(), null);
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
             Obstacle obstacle = obstacles.get(i);
-            g.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height, null);
+            g.drawImage(obstacleImage, obstacle.getX(), obstacle.getY(), obstacle.getWidth(), obstacle.getHeight(), null);
         }
 
         // Skriver ut resultatet.
@@ -152,38 +129,38 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void move() {
-        // bird
+        // birb
         velocityY += gravity;
-        bird.y += velocityY;
-        bird.y = Math.max(bird.y, 0);
+        birb.setY(birb.getX() + velocityY);
+        birb.setY(Math.max(birb.getY(), 0));
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
             Obstacle obstacle = obstacles.get(i);
-            obstacle.x += velocityX;
+            obstacle.setX(obstacle.getX() + velocityX);
 
-            if(!obstacle.passed && bird.x > obstacle.x + obstacle.width) {
-                obstacle.passed = true;
+            if(!obstacle.isPassed() && birb.getX() > obstacle.getX() + obstacle.getWidth()) {
+                obstacle.setPassed(true);
                 score += 0.5; // 0.5 poäng per hinder för att de räknas som två hinder, ett övre och ett nedre.
             }
 
             // Om fågeln kraschar med obstacles = gameOver.
-            if (collision(bird, obstacle)) {
+            if (collision(birb, obstacle)) {
                 gameOver = true;
             }
         }
 
         // GameOver om fågeln touchar rutans underkant
-        if (bird.y > frameHeight) {
+        if (birb.getY() > frameHeight) {
             gameOver = true;
         }
     }
 
-    public boolean collision(Bird a, Obstacle b) {
-        return a.x < b.x + b.width && // a's top left corner doesnt reach b's top right corner
-                a.x + a.width > b.x && // a's top right corner passes b's top left corner
-                a.y < b.y + b.height && // a's top left corner doesnt reach b's bottom left corner
-                a.y + a.height > b.y; // a's bottom left corner passes b's top left corner
+    public boolean collision(Birb birb, Obstacle obstacle) {
+        return birb.getX() < obstacle.getX() + obstacle.getWidth() && // a's top left corner doesnt reach b's top right corner
+                birb.getX() + birb.getWidth() > obstacle.getX() && // a's top right corner passes b's top left corner
+                birb.getY() < obstacle.getY() + obstacle.getHeight() && // a's top left corner doesnt reach b's bottom left corner
+                birb.getY() + birb.getHeight() > obstacle.getY(); // a's bottom left corner passes b's top left corner
             }
 
     @Override
@@ -201,11 +178,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            velocityY = -9;
+            velocityY = 4;
             
             if (gameOver) {
                 // startar om spelet och återställer positionerna på fågel och hinder med (Space).
-                bird.y = birdY;
+                birb.setY(birbY);
                 velocityY = 0;
                 obstacles.clear();
                 score = 0;
