@@ -20,8 +20,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     // Birb placement & size
     int birbX = frameWidth / 8;
     int birbY = frameHeight / 2;
-    int birbWidth = 34;
-    int birbHeight = 34;
+    int birbWidth = 46;
+    int birbHeight = 19;
 
     class Birb {
         int x = birbX;
@@ -77,8 +77,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
 
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("./background.png")).getImage();
-        birbImage = new ImageIcon(getClass().getResource("./purple_bat.png")).getImage();
+        backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
         // topObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
