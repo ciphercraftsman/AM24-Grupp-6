@@ -12,25 +12,25 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     // Images
     Image backgroundImage;
-    Image birdImage;
+    Image birbImage;
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
 
-    // Bird placement & size
-    int birdX = frameWidth / 8;
-    int birdY = frameHeight / 2;
-    int birdWidth = 34;
-    int birdHeight = 34;
+    // Birb placement & size
+    int birbX = frameWidth / 8;
+    int birbY = frameHeight / 2;
+    int birbWidth = 34;
+    int birbHeight = 34;
 
-    class Bird {
-        int x = birdX;
-        int y = birdY;
-        int width = birdWidth;
-        int height = birdHeight;
+    class Birb {
+        int x = birbX;
+        int y = birbY;
+        int width = birbWidth;
+        int height = birbHeight;
         Image img;
 
-        Bird(Image img) {
+        Birb(Image img) {
             this.img = img;
         }
     }
@@ -56,7 +56,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     // game logic
-    Bird bird;
+    Birb birb;
     int velocityX = -4; // Flyttar obstacles åt vänster (farten)
     int velocityY = 0; // Justerar fågelns upp/ner fart.
     int gravity = 1;
@@ -78,15 +78,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // load images
         backgroundImage = new ImageIcon(getClass().getResource("./background.png")).getImage();
-        birdImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("./purple_bat.png")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
-        // bottomObstacleImage = new ImageIcon(getClass().getResource("./birdImage.png")).getImage();
+        // topObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
+        // bottomObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
 
         // Fågel
-        bird = new Bird(birdImage);
+        birb = new Birb(birbImage);
         obstacles = new ArrayList<Obstacle>();
 
         // Place obstacles timer
@@ -130,8 +130,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // background
         g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
 
-        // bird
-        g.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height, null);
+        // birb
+        g.drawImage(birb.img, birb.x, birb.y, birb.width, birb.height, null);
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
@@ -152,34 +152,34 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void move() {
-        // bird
+        // birb
         velocityY += gravity;
-        bird.y += velocityY;
-        bird.y = Math.max(bird.y, 0);
+        birb.y += velocityY;
+        birb.y = Math.max(birb.y, 0);
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
             Obstacle obstacle = obstacles.get(i);
             obstacle.x += velocityX;
 
-            if(!obstacle.passed && bird.x > obstacle.x + obstacle.width) {
+            if(!obstacle.passed && birb.x > obstacle.x + obstacle.width) {
                 obstacle.passed = true;
                 score += 0.5; // 0.5 poäng per hinder för att de räknas som två hinder, ett övre och ett nedre.
             }
 
             // Om fågeln kraschar med obstacles = gameOver.
-            if (collision(bird, obstacle)) {
+            if (collision(birb, obstacle)) {
                 gameOver = true;
             }
         }
 
         // GameOver om fågeln touchar rutans underkant
-        if (bird.y > frameHeight) {
+        if (birb.y > frameHeight) {
             gameOver = true;
         }
     }
 
-    public boolean collision(Bird a, Obstacle b) {
+    public boolean collision(Birb a, Obstacle b) {
         return a.x < b.x + b.width && // a's top left corner doesnt reach b's top right corner
                 a.x + a.width > b.x && // a's top right corner passes b's top left corner
                 a.y < b.y + b.height && // a's top left corner doesnt reach b's bottom left corner
@@ -205,7 +205,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             
             if (gameOver) {
                 // startar om spelet och återställer positionerna på fågel och hinder med (Space).
-                bird.y = birdY;
+                birb.y = birbY;
                 velocityY = 0;
                 obstacles.clear();
                 score = 0;
