@@ -8,22 +8,21 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  */
 public class App {
     public static void main(String[] args) {
-        final int frameWidth = 460;
-        final int frameHeight = 640;
         
         JFrame main = new JFrame("Jumpy Birb");
 
-        main.setSize(frameWidth, frameHeight);
-        main.setLocationRelativeTo(null);
-        main.setResizable(false);
         main.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        main.setResizable(false);
         
-        Game game = new Game();
+        GamePanel gamePanel = new GamePanel();
+        main.add(gamePanel);
         
-        main.add(game);
         main.pack();
-        game.requestFocus();
-        //main.addKeyListener(game);
+        
+        main.setLocationRelativeTo(null);
         main.setVisible(true);
+        gamePanel.requestFocus();
+
+        gamePanel.startGameThread();
     }
 }
