@@ -68,6 +68,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     Timer placePipeTimer;
     boolean gameOver = false;
     double score = 0;
+    double highScore = 0;
 
 
     Game() {
@@ -144,7 +145,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         g.setFont(new Font("Arial", Font.PLAIN, 32));
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35);  // x & y är kordinater för texten
-        
+            g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
         }
         else {
             g.drawString(String.valueOf((int) score), 10, 35);
@@ -176,6 +177,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // GameOver om fågeln touchar rutans underkant
         if (birb.y > frameHeight) {
             gameOver = true;
+        }
+
+        if(score > highScore){
+            highScore = score;
         }
     }
 
