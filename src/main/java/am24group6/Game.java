@@ -10,6 +10,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     int frameWidth = 360;
     int frameHeight = 640;
 
+    // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
+    // classen.
+    Timer pausTimer;
+    boolean canRestart = false;
+
     // Images
     Image backgroundImage;
     Image birbImage;
@@ -70,21 +75,30 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     double score = 0;
     double highScore = 0;
 
-
     Game() {
         setPreferredSize(new Dimension(frameWidth, frameHeight));
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
 
+        // Paus funktionen nör fågeln dör.
+        pausTimer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                canRestart = true;
+                pausTimer.stop();
+            }
+        });
+
         // load images
         backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-        // bottomObstacleImage = new ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-
+        // topObstacleImage = new
+        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
+        // bottomObstacleImage = new
+        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Fågel
         birb = new Birb(birbImage);
@@ -99,17 +113,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         });
         placePipeTimer.start();
 
-        
         // game timer
         gameLoop = new Timer(1000 / 60, this);
         gameLoop.start();
-        
+
     }
 
     public void placePipes() {
         // Avgör vilken höjd obstacles hamnar på.
-        int randomObstacleY = (int) (obstacleY - obstacleHeight/4 - Math.random()*(obstacleHeight/2));
-        int openingSpace = frameHeight/4; 
+        int randomObstacleY = (int) (obstacleY - obstacleHeight / 4 - Math.random() * (obstacleHeight / 2));
+        int openingSpace = frameHeight / 4;
 
         // Top obstacle
         Obstacle topObstacle = new Obstacle(obstacleImage);
@@ -144,10 +157,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.PLAIN, 32));
         if (gameOver) {
-            g.drawString("Score : " + String.valueOf((int) score), 10, 35);  // x & y är kordinater för texten
+            g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
             g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
-        }
-        else {
+        } else {
             g.drawString(String.valueOf((int) score), 10, 35);
         }
     }
@@ -163,9 +175,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             Obstacle obstacle = obstacles.get(i);
             obstacle.x += velocityX;
 
-            if(!obstacle.passed && birb.x > obstacle.x + obstacle.width) {
+            if (!obstacle.passed && birb.x > obstacle.x + obstacle.width) {
                 obstacle.passed = true;
-                score += 0.5; // 0.5 poäng per hinder för att de räknas som två hinder, ett övre och ett nedre.
+                score += 0.5; // 0.5 poäng per hinder för att de räknas som två hinder, ett övre och ett
+                              // nedre.
             }
 
             // Om fågeln kraschar med obstacles = gameOver.
@@ -179,7 +192,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             gameOver = true;
         }
 
-        if(score > highScore){
+        if (score > highScore) {
             highScore = score;
         }
     }
@@ -189,7 +202,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 a.x + a.width > b.x && // a's top right corner passes b's top left corner
                 a.y < b.y + b.height && // a's top left corner doesnt reach b's bottom left corner
                 a.y + a.height > b.y; // a's bottom left corner passes b's top left corner
-            }
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -200,6 +213,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (gameOver) {
             placePipeTimer.stop();
             gameLoop.stop();
+            pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
         }
     }
 
@@ -207,9 +221,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             velocityY = -9;
-            
-            if (gameOver) {
-                // startar om spelet och återställer positionerna på fågel och hinder med (Space).
+
+            if (gameOver && canRestart) {
+                // startar om spelet och återställer positionerna på fågel och hinder med
+                // (Space).
                 birb.y = birbY;
                 velocityY = 0;
                 obstacles.clear();
@@ -217,6 +232,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 gameOver = false;
                 gameLoop.start();
                 placePipeTimer.start();
+                canRestart = false;
+            } else {
+                velocityY = -9;
             }
 
         }

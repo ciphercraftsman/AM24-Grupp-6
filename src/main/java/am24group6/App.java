@@ -8,7 +8,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
  */
 public class App {
     public static void main(String[] args) {
-        final int frameWidth = 460;
+        final int frameWidth = 660;
         final int frameHeight = 640;
         
         JFrame main = new JFrame("Jumpy Birb");
