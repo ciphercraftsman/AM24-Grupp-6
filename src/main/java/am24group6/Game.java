@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.*;
+
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
@@ -59,12 +61,19 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             this.img = img;
         }
     }
+    
+    // Välj level här!
+    int level = 4;
 
     // game logic
     Birb birb;
-    int velocityX = -4; // Flyttar obstacles åt vänster (farten)
     int velocityY = 0; // Justerar fågelns upp/ner fart.
     int gravity = 1;
+
+    // Level dependant
+    int velocityX = -4; // Flyttar obstacles åt vänster (farten)
+    int jump = -9;
+    int obstacleDistance = 1500;
 
     ArrayList<Obstacle> obstacles;
     Random random = new Random();
@@ -80,6 +89,32 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
+
+        switch (level) {
+            case 1 -> {
+                velocityX = -4;
+                obstacleDistance = 1500;
+                jump = -9;
+            }
+
+            case 2 -> {
+                velocityX = -6;
+                obstacleDistance = 1000;
+                jump = -10;
+            }
+
+            case 3 -> {
+                velocityX = -8;
+                obstacleDistance = 750;
+                jump = -11;
+            }
+
+            case 4 -> {
+                velocityX = -9;
+                obstacleDistance = 700;
+                jump = -12;
+            }
+        };
 
         // Paus funktionen nör fågeln dör.
         pausTimer = new Timer(500, new ActionListener() {
@@ -105,7 +140,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         obstacles = new ArrayList<Obstacle>();
 
         // Place obstacles timer
-        placePipeTimer = new Timer(1500, new ActionListener() {
+        placePipeTimer = new Timer(obstacleDistance, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 placePipes();
@@ -120,8 +155,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void placePipes() {
-        // Avgör vilken höjd obstacles hamnar på.
-        int randomObstacleY = (int) (obstacleY - obstacleHeight / 4 - Math.random() * (obstacleHeight / 2));
+        // Avgör vilken höjd obstacles hamnar på (originalsättet)
+        // int randomObstacleY = (int) (obstacleY - obstacleHeight / 4 - Math.random() *
+        // (obstacleHeight / 2));
+
+        // Nytt sätt att få randomiserade hinder
+        int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
+        int randomIndex = ThreadLocalRandom.current().nextInt(5);
+        int randomObstacleY = randomObstacleYHeights[randomIndex];
+
         int openingSpace = frameHeight / 4;
 
         // Top obstacle
@@ -220,7 +262,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            velocityY = -9;
+            velocityY = jump;
 
             if (gameOver && canRestart) {
                 // startar om spelet och återställer positionerna på fågel och hinder med
@@ -234,7 +276,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 placePipeTimer.start();
                 canRestart = false;
             } else {
-                velocityY = -9;
+                velocityY = jump;
             }
 
         }
