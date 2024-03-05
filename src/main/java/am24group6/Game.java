@@ -63,7 +63,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
     
     // Välj level här!
-    int level = 4;
+    int level = 2;
 
     // game logic
     Birb birb;
@@ -74,6 +74,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     int velocityX = -4; // Flyttar obstacles åt vänster (farten)
     int jump = -9;
     int obstacleDistance = 1500;
+    int openingSpace = frameHeight / 4;
 
     ArrayList<Obstacle> obstacles;
     Random random = new Random();
@@ -93,26 +94,30 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         switch (level) {
             case 1 -> {
                 velocityX = -4;
-                obstacleDistance = 1500;
+                obstacleDistance = 1600;
                 jump = -9;
+                openingSpace = frameHeight / 4;
             }
 
             case 2 -> {
                 velocityX = -6;
-                obstacleDistance = 1000;
+                obstacleDistance = 1100;
                 jump = -10;
+                openingSpace = frameHeight / 5;
             }
 
             case 3 -> {
-                velocityX = -8;
-                obstacleDistance = 750;
-                jump = -11;
+                velocityX = -4;
+                obstacleDistance = 1500;
+                jump = -9;
+                openingSpace = frameHeight / 5;
             }
 
             case 4 -> {
                 velocityX = -9;
                 obstacleDistance = 700;
                 jump = -12;
+                openingSpace = frameHeight / 4;
             }
         };
 
@@ -163,8 +168,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
         int randomIndex = ThreadLocalRandom.current().nextInt(5);
         int randomObstacleY = randomObstacleYHeights[randomIndex];
-
-        int openingSpace = frameHeight / 4;
 
         // Top obstacle
         Obstacle topObstacle = new Obstacle(obstacleImage);
