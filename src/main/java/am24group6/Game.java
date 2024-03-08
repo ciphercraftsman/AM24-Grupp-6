@@ -24,44 +24,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     Image bottomObstacleImage;
     Image obstacleImage;
 
-    // Birb placement & size
-    int birbX = frameWidth / 8;
-    int birbY = frameHeight / 2;
-    int birbWidth = 46;
-    int birbHeight = 19;
+    // Birb placement
+    final int birbX = frameWidth / 8;
+    final int birbY = frameHeight / 2;
 
-    class Birb {
-        int x = birbX;
-        int y = birbY;
-        int width = birbWidth;
-        int height = birbHeight;
-        Image img;
-
-        Birb(Image img) {
-            this.img = img;
-        }
-    }
-
-    // Obstacles
-    int obstacleX = frameWidth;
-    int obstacleY = 0;
-    int obstacleWidth = 64;
-    int obstacleHeight = 512;
-
-    class Obstacle {
-        int x = obstacleX;
-        int y = obstacleY;
-        int width = obstacleWidth;
-        int height = obstacleHeight;
-        Image img;
-        boolean passed = false; // kollar om fågeln har tagit sig förbi hindret och används för att hålla koll
-        // på poängen.
-
-        Obstacle(Image img) {
-            this.img = img;
-        }
-    }
-    
     // Välj level här!
     int level = 2;
 
@@ -71,20 +37,21 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     int gravity = 1;
 
     // Level dependant
-    int velocityX = -4; // Flyttar obstacles åt vänster (farten)
-    int jump = -9;
-    int obstacleDistance = 1500;
-    int openingSpace = frameHeight / 4;
+    int velocityX; // Flyttar obstacles åt vänster (farten)
+    int jump;
+    int obstacleDistance;
+    int openingSpace;
 
     ArrayList<Obstacle> obstacles;
-    Random random = new Random();
 
     Timer gameLoop;
-    Timer placePipeTimer;
-    boolean gameOver = false;
+    Timer placeObstacleTimer;
+    
     double score = 0;
     double highScore = 0;
-
+    
+    boolean gameOver = false;
+    
     Game() {
         setPreferredSize(new Dimension(frameWidth, frameHeight));
 
@@ -100,25 +67,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             }
 
             case 2 -> {
-                velocityX = -6;
+                velocityX = -7;
                 obstacleDistance = 1100;
                 jump = -10;
-                openingSpace = frameHeight / 5;
+                openingSpace = frameHeight / 6;
             }
 
-            case 3 -> {
-                velocityX = -4;
-                obstacleDistance = 1500;
-                jump = -9;
-                openingSpace = frameHeight / 5;
-            }
-
-            case 4 -> {
-                velocityX = -9;
-                obstacleDistance = 700;
-                jump = -12;
-                openingSpace = frameHeight / 4;
-            }
         };
 
         // Paus funktionen nör fågeln dör.
@@ -141,17 +95,17 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Fågel
-        birb = new Birb(birbImage);
+        birb = new Birb(birbImage, birbX, birbY);
         obstacles = new ArrayList<Obstacle>();
 
         // Place obstacles timer
-        placePipeTimer = new Timer(obstacleDistance, new ActionListener() {
+        placeObstacleTimer = new Timer(obstacleDistance, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 placePipes();
             }
         });
-        placePipeTimer.start();
+        placeObstacleTimer.start();
 
         // game timer
         gameLoop = new Timer(1000 / 60, this);
@@ -160,23 +114,18 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void placePipes() {
-        // Avgör vilken höjd obstacles hamnar på (originalsättet)
-        // int randomObstacleY = (int) (obstacleY - obstacleHeight / 4 - Math.random() *
-        // (obstacleHeight / 2));
-
-        // Nytt sätt att få randomiserade hinder
         int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
         int randomIndex = ThreadLocalRandom.current().nextInt(5);
         int randomObstacleY = randomObstacleYHeights[randomIndex];
 
         // Top obstacle
-        Obstacle topObstacle = new Obstacle(obstacleImage);
+        Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
         topObstacle.y = randomObstacleY;
         obstacles.add(topObstacle);
 
         // Nedre obstacle
-        Obstacle bottomObstacle = new Obstacle(obstacleImage);
-        bottomObstacle.y = topObstacle.y + obstacleHeight + openingSpace;
+        Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
+        bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
         obstacles.add(bottomObstacle);
     }
 
@@ -256,7 +205,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // Stoppar spelet när gameOver.
         if (gameOver) {
-            placePipeTimer.stop();
+            placeObstacleTimer.stop();
             gameLoop.stop();
             pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
         }
@@ -276,7 +225,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 score = 0;
                 gameOver = false;
                 gameLoop.start();
-                placePipeTimer.start();
+                placeObstacleTimer.start();
                 canRestart = false;
             } else {
                 velocityY = jump;
