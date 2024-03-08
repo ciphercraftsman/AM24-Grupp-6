@@ -9,13 +9,13 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
-    int frameWidth = 360;
-    int frameHeight = 640;
+    final int frameWidth = 360;
+    final int frameHeight = 640;
 
     // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
     // classen.
     Timer pausTimer;
-    boolean canRestart = false;
+    boolean canRestart;
 
     // Images
     Image backgroundImage;
@@ -33,8 +33,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     // game logic
     Birb birb;
-    int velocityY = 0; // Justerar fågelns upp/ner fart.
-    int gravity = 1;
+    int velocityY; // Justerar fågelns upp/ner fart.
+    final int gravity = 1;
 
     // Level dependant
     int velocityX; // Flyttar obstacles åt vänster (farten)
@@ -47,12 +47,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     Timer gameLoop;
     Timer placeObstacleTimer;
     
-    double score = 0;
+    double score;
     double highScore = 0;
     
-    boolean gameOver = false;
+    boolean gameOver;
     
     Game() {
+        // load images
+        backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
+        obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
+        // Används inte än då vi bara har en typ av hinder.
+        // topObstacleImage = new
+        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
+        // bottomObstacleImage = new
+        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
+
+        birb = new Birb(birbImage, birbX, birbY);
+        obstacles = new ArrayList<Obstacle>();
+        
+        setStartValues();
+        
         setPreferredSize(new Dimension(frameWidth, frameHeight));
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
@@ -83,20 +98,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 pausTimer.stop();
             }
         });
-
-        // load images
-        backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
-        birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
-        obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
-        // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-        // bottomObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-
-        // Fågel
-        birb = new Birb(birbImage, birbX, birbY);
-        obstacles = new ArrayList<Obstacle>();
 
         // Place obstacles timer
         placeObstacleTimer = new Timer(obstacleDistance, new ActionListener() {
@@ -198,6 +199,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 a.y + a.height > b.y; // a's bottom left corner passes b's top left corner
     }
 
+    public void setStartValues() {
+        birb.y = birbY;
+        velocityY = 0;
+        score = 0;
+        gameOver = false;
+        canRestart = false;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         move();
@@ -219,14 +228,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (gameOver && canRestart) {
                 // startar om spelet och återställer positionerna på fågel och hinder med
                 // (Space).
-                birb.y = birbY;
-                velocityY = 0;
+                setStartValues();
                 obstacles.clear();
-                score = 0;
-                gameOver = false;
                 gameLoop.start();
                 placeObstacleTimer.start();
-                canRestart = false;
             } else {
                 velocityY = jump;
             }
