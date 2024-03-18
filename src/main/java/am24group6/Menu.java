@@ -1,19 +1,36 @@
 package am24group6;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-public class Menu {
-    public Menu(int frameWidth, int frameHeight) {
+import javax.swing.JPanel;
 
+// Anpassat gränssnitt för menyhändelser
+interface MenuActionListener {
+    void startGameWithLevel(int selectedLevel);
+    // Lägg till eventuella andra metoder för menyhändelser här
+}
+
+public class Menu extends JPanel implements MouseListener {
+    MenuActionListener actionListener;
+
+    public Menu(int frameWidth, int frameHeight, MenuActionListener actionListener) {
+        this.actionListener = actionListener;
+        setPreferredSize(new Dimension(frameWidth, frameHeight));
+        addMouseListener(this);
     }
 
-    public Rectangle playButton = new Rectangle(Game.WIDTH / 2 + 120, 150, 100, 50);
-    public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 120, 250, 100, 50);
+    public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 120, 150, 100, 50);
+    public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 120, 250, 100, 50);
     public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 120, 350, 100, 50);
+    // public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 120, 250,
+    // 100, 50);
 
     public void render(Graphics g, int frameWidth, int frameHeight) {
         Graphics2D g2d = (Graphics2D) g;
@@ -28,10 +45,10 @@ public class Menu {
 
         Font fnt1 = new Font("arial", Font.BOLD, 30);
         g.setFont(fnt1);
-        g.drawString("Play", playButton.x + 19, playButton.y + 30);
-        g2d.draw(playButton);
-        g.drawString("Score", highscoreButton.x + 14, highscoreButton.y + 30);
-        g2d.draw(highscoreButton);
+        g.drawString("Easy", easyButton.x + 19, easyButton.y + 30);
+        g2d.draw(easyButton);
+        g.drawString("Hard", hardButton.x + 14, hardButton.y + 30);
+        g2d.draw(hardButton);
         g.drawString("Quit", quitButton.x + 19, quitButton.y + 30);
         g2d.draw(quitButton);
 
@@ -42,4 +59,31 @@ public class Menu {
         g.setFont(new Font("arial", Font.BOLD, 20));
         g.drawString("Game Paused", Game.WIDTH / 2 - 60, Game.HEIGHT / 2);
     }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (easyButton.contains(e.getX(), e.getY())) {
+            // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
+            actionListener.startGameWithLevel(1);
+        } else if (hardButton.contains(e.getX(), e.getY())) {
+            // Anropa startGameWithLevel-metoden med svår svårighetsgrad
+            actionListener.startGameWithLevel(2);
+        } else if (quitButton.contains(e.getX(), e.getY())) {
+            // Avsluta applikationen
+            System.exit(0);
+        }
+    }
+
+    // Övriga metoder från MouseListener som måste implementeras
+    @Override
+    public void mousePressed(MouseEvent e) {}
+
+    @Override
+    public void mouseReleased(MouseEvent e) {}
+
+    @Override
+    public void mouseEntered(MouseEvent e) {}
+
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }
