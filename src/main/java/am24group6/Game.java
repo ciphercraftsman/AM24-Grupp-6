@@ -35,7 +35,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     // Level dependant
     int velocityX; // Flyttar obstacles åt vänster (farten)
     int jump;
-    int obstacleDistance = 1400;
+    int obstacleDistance = 0;
     int openingSpace;
 
     ArrayList<Obstacle> obstacles;
@@ -93,7 +93,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
 
-        // Paus funktionen nör fågeln dör.
+        // Paus funktionen när fågeln dör.
         pausTimer = new Timer(500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -102,6 +102,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             }
         });
 
+        System.out.println("SKAPA TIMER");
+
         // Place obstacles timer
         placeObstacleTimer = new Timer(obstacleDistance, new ActionListener() {
             @Override
@@ -109,7 +111,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placePipes();
             }
         });
-        placeObstacleTimer.start();
 
         // game timer
         gameLoop = new Timer(1000 / 60, this);
@@ -280,24 +281,31 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     private void startGame(int selectedLevel) {
+        System.out.println("START GAME");
         this.level = selectedLevel;
         gameState = GameState.PLAYING;
         obstacles.clear();
         setStartValues();
+        
         switch (level) {
             case 1 -> {
                 velocityX = -4;
                 obstacleDistance = 1600;
+                placeObstacleTimer.setDelay(obstacleDistance);
+                placeObstacleTimer.restart();
                 jump = -9;
                 openingSpace = frameHeight / 4;
             }
             case 2 -> {
                 velocityX = -7;
                 obstacleDistance = 1100;
+                placeObstacleTimer.setDelay(obstacleDistance);
+                placeObstacleTimer.restart();
                 jump = -10;
                 openingSpace = frameHeight / 6;
             }
         }
+        
         gameLoop.start();
         placeObstacleTimer.start();
     }
