@@ -63,9 +63,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     Game() {
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("./black_sky.png")).getImage();
-        birbImage = new ImageIcon(getClass().getResource("./bat_purple.png")).getImage();
-        obstacleImage = new ImageIcon(getClass().getResource("./obstacleImage.png")).getImage();
+        backgroundImage = new ImageIcon(getClass().getResource("/black_sky.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("/bat_purple.png")).getImage();
+        obstacleImage = new ImageIcon(getClass().getResource("/obstacleImage.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
         // topObstacleImage = new
         // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
