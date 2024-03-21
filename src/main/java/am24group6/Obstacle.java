@@ -14,7 +14,7 @@ class Obstacle {
         this.img = img;
         this.x = frameWidth;
         this.y = 0;
-        this.width = 64;
+        this.width = 32;
         this.height = 512;
         this.passed = false;
     }

@@ -2,13 +2,14 @@ package am24group6;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener, MouseListener, MouseMotionListener {
-    public static final int frameWidth = 360;
+    public static final int frameWidth = 384;
     public static final int frameHeight = 640;
 
     // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
@@ -22,6 +23,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
+
+    // Font
+    Font superLegendBoy;
 
     // Birb placement
     final int birbX = frameWidth / 8;
@@ -62,10 +66,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     Game() {
+
+        // load font
+        try {
+            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, new File("/SuperLegendBoy.ttf")).deriveFont(30f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(superLegendBoy);
+
+        } catch (IOException | FontFormatException e) {
+            e.getMessage();
+        }
+
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("/black_sky.png")).getImage();
-        birbImage = new ImageIcon(getClass().getResource("/bat_purple.png")).getImage();
-        obstacleImage = new ImageIcon(getClass().getResource("/obstacleImage.png")).getImage();
+        backgroundImage = new ImageIcon(getClass().getResource("/background.png")).getImage();
+        birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
+        obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
         // topObstacleImage = new
         // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
@@ -108,7 +123,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         placeObstacleTimer = new Timer(obstacleDistance, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                placePipes();
+                placeObstacles();
             }
         });
 
@@ -117,7 +132,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         gameLoop.start();
     }
 
-    public void placePipes() {
+    public void placeObstacles() {
         int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
         int randomIndex = ThreadLocalRandom.current().nextInt(5);
         int randomObstacleY = randomObstacleYHeights[randomIndex];
@@ -158,6 +173,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // Skriver ut resultatet.
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.PLAIN, 32));
+        // g.setFont(superLegendBoy);
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
             g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
@@ -253,9 +269,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             }
         }
     }
-    
-    
- 
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -286,7 +299,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         gameState = GameState.PLAYING;
         obstacles.clear();
         setStartValues();
-        
+
         switch (level) {
             case 1 -> {
                 velocityX = -4;
@@ -305,7 +318,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 openingSpace = frameHeight / 6;
             }
         }
-        
+
         gameLoop.start();
         placeObstacleTimer.start();
     }
