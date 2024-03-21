@@ -1,15 +1,10 @@
 package am24group6;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 // Anpassat gränssnitt för menyhändelser
 interface MenuActionListener {
@@ -26,6 +21,8 @@ public class Menu extends JPanel implements MouseListener {
         addMouseListener(this);
     }
 
+    Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
+
     public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 120, 150, 100, 50);
     public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 120, 250, 100, 50);
     public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 120, 350, 100, 50);
@@ -38,10 +35,12 @@ public class Menu extends JPanel implements MouseListener {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, frameWidth, frameHeight);
 
+        g.drawImage(menuImage, 0, 0, frameWidth, frameHeight, null);
+
         Font fnt0 = new Font("arial", Font.BOLD, 50);
         g.setFont(fnt0);
-        g.setColor(Color.BLUE);
-        g.drawString("Jumpy Birb", Game.WIDTH / 2, 100);
+        g.setColor(Color.WHITE);
+        // g.drawString("Jumpy Birb", Game.WIDTH / 2, 100);
 
         Font fnt1 = new Font("arial", Font.BOLD, 30);
         g.setFont(fnt1);
