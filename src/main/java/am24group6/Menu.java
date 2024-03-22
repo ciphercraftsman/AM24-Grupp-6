@@ -1,6 +1,8 @@
 package am24group6;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -12,20 +14,25 @@ interface MenuActionListener {
     // Lägg till eventuella andra metoder för menyhändelser här
 }
 
-public class Menu extends JPanel implements MouseListener {
+public class Menu extends JPanel implements MouseListener, KeyListener {
     MenuActionListener actionListener;
+    int selectedOption = 0;
 
     public Menu(int frameWidth, int frameHeight, MenuActionListener actionListener) {
         this.actionListener = actionListener;
         setPreferredSize(new Dimension(frameWidth, frameHeight));
         addMouseListener(this);
+        setFocusable(true);
+        addKeyListener(this);
+        requestFocusInWindow();
+        
     }
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
 
-    public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 120, 150, 100, 50);
-    public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 120, 250, 100, 50);
-    public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 120, 350, 100, 50);
+    public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 135, 250, 100, 50);
+    public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 135, 350, 100, 50);
+    public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
     // public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 120, 250,
     // 100, 50);
 
@@ -44,12 +51,27 @@ public class Menu extends JPanel implements MouseListener {
 
         Font fnt1 = new Font("arial", Font.BOLD, 30);
         g.setFont(fnt1);
-        g.drawString("Easy", easyButton.x + 19, easyButton.y + 30);
+        g.drawString("Easy", easyButton.x + 15, easyButton.y + 33);
         g2d.draw(easyButton);
-        g.drawString("Hard", hardButton.x + 14, hardButton.y + 30);
+        g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
         g2d.draw(hardButton);
-        g.drawString("Quit", quitButton.x + 19, quitButton.y + 30);
+        g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
         g2d.draw(quitButton);
+
+        switch (selectedOption) {
+            case 0:
+                g.setColor(Color.RED); // Set the color to red for the selected option
+                g.drawString("Easy", easyButton.x + 15, easyButton.y + 33);
+                break;
+            case 1:
+                g.setColor(Color.RED);
+                g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
+                break;
+            case 2:
+                g.setColor(Color.RED);
+                g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
+                break;
+        }
 
     }
 
@@ -62,9 +84,11 @@ public class Menu extends JPanel implements MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         if (easyButton.contains(e.getX(), e.getY())) {
+            System.out.println("Easy Mode");
             // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
             actionListener.startGameWithLevel(1);
         } else if (hardButton.contains(e.getX(), e.getY())) {
+            System.out.println("Hard Mode");
             // Anropa startGameWithLevel-metoden med svår svårighetsgrad
             actionListener.startGameWithLevel(2);
         } else if (quitButton.contains(e.getX(), e.getY())) {
@@ -75,14 +99,54 @@ public class Menu extends JPanel implements MouseListener {
 
     // Övriga metoder från MouseListener som måste implementeras
     @Override
-    public void mousePressed(MouseEvent e) {}
+    public void mousePressed(MouseEvent e) {
+    }
 
     @Override
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {
+    }
 
     @Override
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+    }
 
     @Override
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println("Key pressed: " + e.getKeyCode());
+        int keyCode = e.getKeyCode();
+        if (keyCode == KeyEvent.VK_UP) {
+            selectedOption = (selectedOption - 1 + 3) % 3; // Toggle to the previous option
+            repaint(); // Repaint to reflect the changes
+        } else if (keyCode == KeyEvent.VK_DOWN) {
+            selectedOption = (selectedOption + 1) % 3; // Toggle to the next option
+            repaint();
+        } else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE) {
+            // Perform action based on the selected option
+            switch (selectedOption) {
+                case 0:
+                    actionListener.startGameWithLevel(1); // Start the game with easy level
+                    break;
+                case 1:
+                    actionListener.startGameWithLevel(2); // Start the game with hard level
+                    break;
+                case 2:
+                    System.exit(0); // Quit the application
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
 }

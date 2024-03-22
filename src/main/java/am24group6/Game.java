@@ -107,6 +107,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
+        
 
         // Paus funktionen när fågeln dör.
         pausTimer = new Timer(500, new ActionListener() {
