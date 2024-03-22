@@ -25,7 +25,7 @@ public class Menu extends JPanel implements MouseListener, KeyListener {
         setFocusable(true);
         addKeyListener(this);
         requestFocusInWindow();
-        
+
     }
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
@@ -51,27 +51,45 @@ public class Menu extends JPanel implements MouseListener, KeyListener {
 
         Font fnt1 = new Font("arial", Font.BOLD, 30);
         g.setFont(fnt1);
+        // Highlight the currently selected option
+        if (selectedOption == 0) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.WHITE);
+        }
         g.drawString("Easy", easyButton.x + 15, easyButton.y + 33);
         g2d.draw(easyButton);
+
+        if (selectedOption == 1) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.WHITE);
+        }
         g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
         g2d.draw(hardButton);
+
+        if (selectedOption == 2) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.WHITE);
+        }
         g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
         g2d.draw(quitButton);
 
-        switch (selectedOption) {
-            case 0:
-                g.setColor(Color.RED); // Set the color to red for the selected option
-                g.drawString("Easy", easyButton.x + 15, easyButton.y + 33);
-                break;
-            case 1:
-                g.setColor(Color.RED);
-                g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
-                break;
-            case 2:
-                g.setColor(Color.RED);
-                g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
-                break;
-        }
+        // switch (selectedOption) {
+        // case 0:
+        // g.setColor(Color.RED); // Set the color to red for the selected option
+        // g.drawString("Easy", easyButton.x + 15, easyButton.y + 33);
+        // break;
+        // case 1:
+        // g.setColor(Color.RED);
+        // g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
+        // break;
+        // case 2:
+        // g.setColor(Color.RED);
+        // g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
+        // break;
+        // }
 
     }
 
@@ -116,28 +134,40 @@ public class Menu extends JPanel implements MouseListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("Key pressed: " + e.getKeyCode());
-        int keyCode = e.getKeyCode();
-        if (keyCode == KeyEvent.VK_UP) {
-            selectedOption = (selectedOption - 1 + 3) % 3; // Toggle to the previous option
-            repaint(); // Repaint to reflect the changes
-        } else if (keyCode == KeyEvent.VK_DOWN) {
-            selectedOption = (selectedOption + 1) % 3; // Toggle to the next option
-            repaint();
-        } else if (keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_SPACE) {
-            // Perform action based on the selected option
+        int key = e.getKeyCode();
+
+        // Navigate through options with up and down arrow keys
+        if (key == KeyEvent.VK_UP) {
+            System.out.println("Moving up");
+            selectedOption--;
+            if (selectedOption < 0) {
+                selectedOption = 2; // Wrap around to the last option
+            }
+        } else if (key == KeyEvent.VK_DOWN) {
+            System.out.println("Moving down");
+            selectedOption++;
+            if (selectedOption > 2) {
+                selectedOption = 0; // Wrap around to the first option
+            }
+        } else if (key == KeyEvent.VK_SPACE || key == KeyEvent.VK_ENTER) {
+            // Confirm the selection with space bar or enter key
             switch (selectedOption) {
                 case 0:
-                    actionListener.startGameWithLevel(1); // Start the game with easy level
+                    System.out.println("Easy Mode");
+                    actionListener.startGameWithLevel(1);
                     break;
                 case 1:
-                    actionListener.startGameWithLevel(2); // Start the game with hard level
+                    System.out.println("Hard Mode");
+                    actionListener.startGameWithLevel(2);
                     break;
                 case 2:
-                    System.exit(0); // Quit the application
+                    System.exit(0);
                     break;
             }
         }
+
+        // Repaint the menu to reflect changes
+        repaint();
     }
 
     @Override
