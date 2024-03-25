@@ -88,17 +88,18 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Menu and adds mouse listener to this JPanel.
-        menu = new Menu(frameWidth, frameHeight, new MenuActionListener() {
-            @Override
+        menu = new Menu();
+        menu.actionListener = new MenuActionListener() {
             public void startGameWithLevel(int selectedLevel) {
                 startGame(selectedLevel);
             }
-        });
 
-        addMouseListener((MouseListener) menu);
+        };
+
+        addMouseListener(menu);
+        addKeyListener(menu);
+        setFocusable(true);
         gameState = GameState.MENU;
-        mouseInput = new MouseInput();
-        addMouseListener(mouseInput);
 
         birb = new Birb(birbImage, birbX, birbY);
         obstacles = new ArrayList<Obstacle>();
@@ -107,7 +108,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
-        
 
         // Paus funktionen när fågeln dör.
         pausTimer = new Timer(500, new ActionListener() {
@@ -258,16 +258,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             setStartValues();
             obstacles.clear();
             repaint(); // Uppdatera gränssnittet för att visa menyn
-        } else if (gameOver && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            // Kontrollera om spelet är över och användaren trycker på Enter
-            if (menu.easyButton.contains(mouseX, mouseY)) {
-                startGame(1); // Starta om spelet med lätt svårighetsgrad
-            } else if (menu.hardButton.contains(mouseX, mouseY)) {
-                startGame(2); // Starta om spelet med svår svårighetsgrad
-            } else if (menu.quitButton.contains(mouseX, mouseY)) {
-                // Avsluta applikationen
-                System.exit(0);
-            }
+
+            // } else if (gameOver && e.getKeyCode() == KeyEvent.VK_ENTER) {
+            // // Kontrollera om spelet är över och användaren trycker på Enter
+            // if (menu.easyButton.contains(mouseX, mouseY)) {
+            // startGame(1); // Starta om spelet med lätt svårighetsgrad
+            // } else if (menu.hardButton.contains(mouseX, mouseY)) {
+            // startGame(2); // Starta om spelet med svår svårighetsgrad
+            // } else if (menu.quitButton.contains(mouseX, mouseY)) {
+            // // Avsluta applikationen
+            // System.exit(0);
+            // }
         }
     }
 
@@ -281,17 +282,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        mouseX = e.getX();
-        mouseY = e.getY();
-        System.out.println("Mouse clicked at: (" + mouseX + ", " + mouseY + ")");
+        // mouseX = e.getX();
+        // mouseY = e.getY();
+        // System.out.println("Mouse clicked at: (" + mouseX + ", " + mouseY + ")");
 
-        if (gameState == GameState.MENU) {
-            if (menu.easyButton.contains(mouseX, mouseY)) {
-                startGame(1); // Anropa startGame från menyns actionListener
-            } else if (menu.hardButton.contains(mouseX, mouseY)) {
-                startGame(2); // Anropa startGame från menyns actionListener
-            }
-        }
+        // if (gameState == GameState.MENU) {
+        // if (menu.easyButton.contains(mouseX, mouseY)) {
+        // startGame(1); // Anropa startGame från menyns actionListener
+        // } else if (menu.hardButton.contains(mouseX, mouseY)) {
+        // startGame(2); // Anropa startGame från menyns actionListener
+        // }
+        // }
     }
 
     private void startGame(int selectedLevel) {

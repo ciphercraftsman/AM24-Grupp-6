@@ -14,19 +14,9 @@ interface MenuActionListener {
     // Lägg till eventuella andra metoder för menyhändelser här
 }
 
-public class Menu extends JPanel implements MouseListener, KeyListener {
+public class Menu implements MouseListener, KeyListener {
     MenuActionListener actionListener;
     int selectedOption = 0;
-
-    public Menu(int frameWidth, int frameHeight, MenuActionListener actionListener) {
-        this.actionListener = actionListener;
-        setPreferredSize(new Dimension(frameWidth, frameHeight));
-        addMouseListener(this);
-        setFocusable(true);
-        addKeyListener(this);
-        requestFocusInWindow();
-
-    }
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
 
@@ -134,6 +124,7 @@ public class Menu extends JPanel implements MouseListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        System.out.println("aapapap");
         int key = e.getKeyCode();
 
         // Navigate through options with up and down arrow keys
@@ -166,8 +157,6 @@ public class Menu extends JPanel implements MouseListener, KeyListener {
             }
         }
 
-        // Repaint the menu to reflect changes
-        repaint();
     }
 
     @Override
