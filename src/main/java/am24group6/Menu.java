@@ -124,7 +124,6 @@ public class Menu implements MouseListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("aapapap");
         int key = e.getKeyCode();
 
         // Navigate through options with up and down arrow keys
@@ -140,7 +139,7 @@ public class Menu implements MouseListener, KeyListener {
             if (selectedOption > 2) {
                 selectedOption = 0; // Wrap around to the first option
             }
-        } else if (key == KeyEvent.VK_SPACE || key == KeyEvent.VK_ENTER) {
+        } else if (key == KeyEvent.VK_ENTER) {
             // Confirm the selection with space bar or enter key
             switch (selectedOption) {
                 case 0:
