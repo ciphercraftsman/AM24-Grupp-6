@@ -88,7 +88,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Menu and adds mouse listener to this JPanel.
-        menu = new Menu();
+        menu = new Menu(this);
         menu.actionListener = new MenuActionListener() {
             public void startGameWithLevel(int selectedLevel) {
                 startGame(selectedLevel);

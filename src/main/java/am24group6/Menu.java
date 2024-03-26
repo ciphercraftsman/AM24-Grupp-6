@@ -25,6 +25,11 @@ public class Menu implements MouseListener, KeyListener {
     public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
     // public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 120, 250,
     // 100, 50);
+    private Game game;
+
+    public Menu(Game game) {
+        this.game = game;
+    }
 
     public void render(Graphics g, int frameWidth, int frameHeight) {
         Graphics2D g2d = (Graphics2D) g;
@@ -140,7 +145,7 @@ public class Menu implements MouseListener, KeyListener {
                 selectedOption = 0; // Wrap around to the first option
             }
         } else if (key == KeyEvent.VK_ENTER) {
-            // Confirm the selection with space bar or enter key
+            // Confirm the selection with enter key
             switch (selectedOption) {
                 case 0:
                     System.out.println("Easy Mode");
@@ -156,6 +161,7 @@ public class Menu implements MouseListener, KeyListener {
             }
         }
 
+        game.repaint();
     }
 
     @Override
