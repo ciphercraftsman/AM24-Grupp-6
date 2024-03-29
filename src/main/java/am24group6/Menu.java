@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -20,6 +21,8 @@ public class Menu implements MouseListener, KeyListener {
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
 
+    Font superLegendBoy;
+
     public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 135, 250, 100, 50);
     public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 135, 350, 100, 50);
     public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
@@ -29,6 +32,23 @@ public class Menu implements MouseListener, KeyListener {
 
     public Menu(Game game) {
         this.game = game;
+
+        // load font
+        InputStream fontStream = getClass().getResourceAsStream("/SuperLegendBoy.ttf");
+
+        try {
+            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(22f);
+        } catch (IOException | FontFormatException e) {
+            e.getMessage();
+        } finally {
+            try {
+                if (fontStream != null) {
+                    fontStream.close();
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
+        }
     }
 
     public void render(Graphics g, int frameWidth, int frameHeight) {
@@ -39,13 +59,16 @@ public class Menu implements MouseListener, KeyListener {
 
         g.drawImage(menuImage, 0, 0, frameWidth, frameHeight, null);
 
-        Font fnt0 = new Font("arial", Font.BOLD, 50);
-        g.setFont(fnt0);
-        g.setColor(Color.WHITE);
+        // Font fnt0 = new Font("arial", Font.BOLD, 50);
+        // g.setFont(fnt0);
+        // g.setColor(Color.WHITE);
         // g.drawString("Jumpy Birb", Game.WIDTH / 2, 100);
 
-        Font fnt1 = new Font("arial", Font.BOLD, 30);
-        g.setFont(fnt1);
+        // Font fnt1 = new Font("arial", Font.BOLD, 30);
+        // g.setFont(fnt1);
+
+        g.setFont(superLegendBoy);
+
         // Highlight the currently selected option
         if (selectedOption == 0) {
             g.setColor(Color.RED);
@@ -96,18 +119,18 @@ public class Menu implements MouseListener, KeyListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (easyButton.contains(e.getX(), e.getY())) {
-            System.out.println("Easy Mode");
-            // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
-            actionListener.startGameWithLevel(1);
-        } else if (hardButton.contains(e.getX(), e.getY())) {
-            System.out.println("Hard Mode");
-            // Anropa startGameWithLevel-metoden med svår svårighetsgrad
-            actionListener.startGameWithLevel(2);
-        } else if (quitButton.contains(e.getX(), e.getY())) {
-            // Avsluta applikationen
-            System.exit(0);
-        }
+        // if (easyButton.contains(e.getX(), e.getY())) {
+        //     System.out.println("Easy Mode");
+        //     // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
+        //     actionListener.startGameWithLevel(1);
+        // } else if (hardButton.contains(e.getX(), e.getY())) {
+        //     System.out.println("Hard Mode");
+        //     // Anropa startGameWithLevel-metoden med svår svårighetsgrad
+        //     actionListener.startGameWithLevel(2);
+        // } else if (quitButton.contains(e.getX(), e.getY())) {
+        //     // Avsluta applikationen
+        //     System.exit(0);
+        // }
     }
 
     // Övriga metoder från MouseListener som måste implementeras

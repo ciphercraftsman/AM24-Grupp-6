@@ -20,6 +20,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     // Images
     Image backgroundImage;
     Image birbImage;
+    Image birbStartImage;
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
@@ -29,7 +30,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     // Birb placement
     final int birbX = frameWidth / 8;
-    final int birbY = frameHeight / 2;
+    final int birbY = 95; // frameHeight / 2;
 
     // game logic
     Birb birb;
@@ -52,6 +53,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     double score;
     double highScore = 0;
 
+    boolean gameStarted = false;
     boolean gameOver;
     Menu menu;
     GameState gameState;
@@ -68,17 +70,25 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Game() {
 
         // load font
-        try {
-            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, new File("/SuperLegendBoy.ttf")).deriveFont(30f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(superLegendBoy);
+        InputStream fontStream = getClass().getResourceAsStream("/SuperLegendBoy.ttf");
 
+        try {
+            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(30f);
         } catch (IOException | FontFormatException e) {
             e.getMessage();
+        } finally {
+            try {
+                if (fontStream != null) {
+                    fontStream.close();
+                }
+            } catch (IOException e) {
+                e.getMessage();
+            }
         }
 
         // load images
         backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
+        birbStartImage = new ImageIcon(getClass().getResource("/birb_hanging.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
         // Används inte än då vi bara har en typ av hinder.
@@ -101,7 +111,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         setFocusable(true);
         gameState = GameState.MENU;
 
-        birb = new Birb(birbImage, birbX, birbY);
+        // birb = new Birb(birbImage, birbX, birbY);
+        birb = new Birb(null, birbX, birbY);
+
         obstacles = new ArrayList<Obstacle>();
 
         setPreferredSize(new Dimension(frameWidth, frameHeight));
@@ -134,19 +146,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void placeObstacles() {
-        int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
-        int randomIndex = ThreadLocalRandom.current().nextInt(5);
-        int randomObstacleY = randomObstacleYHeights[randomIndex];
+        if (gameStarted) {
+            int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
+            int randomIndex = ThreadLocalRandom.current().nextInt(5);
+            int randomObstacleY = randomObstacleYHeights[randomIndex];
 
-        // Top obstacle
-        Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
-        topObstacle.y = randomObstacleY;
-        obstacles.add(topObstacle);
+            // Top obstacle
+            Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
+            topObstacle.y = randomObstacleY;
+            obstacles.add(topObstacle);
 
-        // Nedre obstacle
-        Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
-        bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
-        obstacles.add(bottomObstacle);
+            // Nedre obstacle
+            Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
+            bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
+            obstacles.add(bottomObstacle);
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -162,8 +176,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // background
         g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
 
-        // birb
-        g.drawImage(birb.img, birb.x, birb.y, birb.width, birb.height, null);
+        if (gameState == GameState.PLAYING && !gameStarted) {
+            // birb hanging before game started
+            g.drawImage(birbStartImage, birbX, birbY, 12, 30, null);
+        } else {
+            // birb
+            g.drawImage(birb.img, birb.x, birb.y, birb.width, birb.height, null);
+        }
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
@@ -173,7 +192,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         // Skriver ut resultatet.
         g.setColor(Color.white);
-        g.setFont(new Font("Arial", Font.PLAIN, 32));
+        g.setFont(superLegendBoy);
+        // g.setFont(new Font("Arial", Font.PLAIN, 32));
         // g.setFont(superLegendBoy);
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
@@ -203,12 +223,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // Om fågeln kraschar med obstacles = gameOver.
             if (collision(birb, obstacle)) {
                 gameOver = true;
+                // gameStarted = false;
             }
         }
 
         // GameOver om fågeln touchar rutans underkant
         if (birb.y > frameHeight) {
             gameOver = true;
+            // gameStarted = false;
         }
 
         if (score > highScore) {
@@ -229,11 +251,15 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         score = 0;
         gameOver = false;
         canRestart = false;
+        gameStarted = false;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
+        if (gameStarted) {
+            move();
+        }
+
         repaint(); // anropar paintComponent()
 
         // Stoppar spelet när gameOver.
@@ -247,10 +273,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
             if (gameOver && canRestart) {
                 startGame(level); // Starta om spelet med samma nivå
             } else {
+                birb.img = birbImage;
+
                 velocityY = jump;
+                if (!gameStarted) {
+                    gameStarted = true;
+                    placeObstacleTimer.start();
+                }
             }
         } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             // Återgå till menyn oavsett spelets tillstånd
@@ -296,11 +329,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     private void startGame(int selectedLevel) {
-        System.out.println("START GAME");
+        System.out.println("GAME SCREEN OPENED");
         this.level = selectedLevel;
         gameState = GameState.PLAYING;
         obstacles.clear();
         setStartValues();
+
+        // birb = new Birb(birbImage, birbX, birbY);
 
         switch (level) {
             case 1 -> {
@@ -322,7 +357,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         }
 
         gameLoop.start();
-        placeObstacleTimer.start();
     }
 
     @Override
