@@ -13,7 +13,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     
     // Images
-    Image backgroundImage;
+    // Image backgroundImage;
+    Image backgroundGif;
+    Image dripstoneLayer;
+    Image rockLayer;
     Image birbImage;
     Image birbStartImage;
     Image topObstacleImage;
@@ -77,7 +80,11 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
 
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
+        // backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
+        backgroundGif = new ImageIcon(getClass().getResource("/background.gif")).getImage();
+        dripstoneLayer = new ImageIcon(getClass().getResource("/dripstonelayer.png")).getImage();
+        rockLayer = new ImageIcon(getClass().getResource("/rocklayer.png")).getImage();
+        
         birbStartImage = new ImageIcon(getClass().getResource("/birb_hanging.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
@@ -159,7 +166,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     public void draw(Graphics g) {
         // background
-        g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
+        // g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(backgroundGif, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(dripstoneLayer, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(rockLayer, 0, 0, frameWidth, frameHeight, null);
 
         if (gameState == GameState.PLAYING && !gameStarted) {
             // birb hanging before game started
