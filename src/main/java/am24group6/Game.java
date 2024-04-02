@@ -12,11 +12,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public static final int frameWidth = 384;
     public static final int frameHeight = 640;
 
-    // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
-    // classen.
-    Timer pausTimer;
-    boolean canRestart;
-
+    
     // Images
     Image backgroundImage;
     Image birbImage;
@@ -24,36 +20,45 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
-
+    
     // Font
     Font superLegendBoy;
 
+    // Sound
+    Sound sound = new Sound();
+    
     // Birb placement
     final int birbX = frameWidth / 8;
     final int birbY = 95; // frameHeight / 2;
-
+    
     // game logic
     Birb birb;
     int velocityY; // Justerar fågelns upp/ner fart.
     final int gravity = 1;
-
+    
     // Level dependant
     int velocityX; // Flyttar obstacles åt vänster (farten)
     int jump;
     int obstacleDistance = 0;
     int openingSpace;
-
+    
     ArrayList<Obstacle> obstacles;
-
+    
     MenuActionListener actionListener;
-
+    
+    // Timers
     Timer gameLoop;
     Timer placeObstacleTimer;
-
+    // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
+    // classen.
+    Timer pausTimer;
+    
     double score;
     double highScore = 0;
-
+    double highScoreBefore = 0;
+    
     boolean gameStarted = false;
+    boolean canRestart;
     boolean gameOver;
     Menu menu;
     GameState gameState;
@@ -198,6 +203,11 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
             g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
+            if (highScore > highScoreBefore) {
+                highScoreBefore = highScore;
+                playSoundEffect(2);
+            }
+            
         } else {
             g.drawString(String.valueOf((int) score), 10, 35);
         }
@@ -254,6 +264,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         gameStarted = false;
     }
 
+    public void playMusic(int i) {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+
+    public void stopMusic() {
+        sound.stop();
+    }
+
+    public void playSoundEffect(int i) {
+        sound.setFile(i);
+        sound.play();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (gameStarted) {
@@ -264,6 +289,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         // Stoppar spelet när gameOver.
         if (gameOver) {
+            playSoundEffect(1);
             placeObstacleTimer.stop();
             gameLoop.stop();
             pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
@@ -278,8 +304,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 startGame(level); // Starta om spelet med samma nivå
             } else {
                 birb.img = birbImage;
-
                 velocityY = jump;
+                playSoundEffect(0);
                 if (!gameStarted) {
                     gameStarted = true;
                     placeObstacleTimer.start();
@@ -291,17 +317,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             setStartValues();
             obstacles.clear();
             repaint(); // Uppdatera gränssnittet för att visa menyn
-
-            // } else if (gameOver && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            // // Kontrollera om spelet är över och användaren trycker på Enter
-            // if (menu.easyButton.contains(mouseX, mouseY)) {
-            // startGame(1); // Starta om spelet med lätt svårighetsgrad
-            // } else if (menu.hardButton.contains(mouseX, mouseY)) {
-            // startGame(2); // Starta om spelet med svår svårighetsgrad
-            // } else if (menu.quitButton.contains(mouseX, mouseY)) {
-            // // Avsluta applikationen
-            // System.exit(0);
-            // }
         }
     }
 
@@ -328,15 +343,41 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // }
     }
 
+    
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        // Implement mouseReleased functionality here
+    }
+    
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // Implement mouseEntered functionality here
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // Implement mouseExited functionality here
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        // Implement mouseDragged functionality here
+    }
+    
+    public void startGameWithLevel(int selectedLevel) {
+        // Implementera startGameWithLevel-metoden här
+        actionListener.startGameWithLevel(selectedLevel);
+    }
+
     private void startGame(int selectedLevel) {
         System.out.println("GAME SCREEN OPENED");
         this.level = selectedLevel;
         gameState = GameState.PLAYING;
         obstacles.clear();
         setStartValues();
-
+    
         // birb = new Birb(birbImage, birbX, birbY);
-
+    
         switch (level) {
             case 1 -> {
                 velocityX = -4;
@@ -355,21 +396,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 openingSpace = frameHeight / 6;
             }
         }
-
+    
         gameLoop.start();
     }
-
+    
     @Override
     public void mouseMoved(MouseEvent e) {
         mouseX = e.getX();
         mouseY = e.getY();
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
         mouseX = e.getX();
         mouseY = e.getY();
-
+    
         if (gameState == GameState.MENU) {
             if (menu.easyButton.contains(mouseX, mouseY)) {
                 // Anropa startGame-metoden direkt för att starta spelet med lätt svårighetsgrad
@@ -382,7 +423,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 // Quit the application
                 System.exit(0);
             }
-
+    
         } else if (gameOver && canRestart) {
             // Restart the game if it's over and can be restarted
             setStartValues();
@@ -393,30 +434,5 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // Trigger jump when mouse is pressed
             velocityY = jump;
         }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        // Implement mouseReleased functionality here
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        // Implement mouseEntered functionality here
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        // Implement mouseExited functionality here
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        // Implement mouseDragged functionality here
-    }
-
-    public void startGameWithLevel(int selectedLevel) {
-        // Implementera startGameWithLevel-metoden här
-        actionListener.startGameWithLevel(selectedLevel);
     }
 }
