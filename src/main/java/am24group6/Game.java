@@ -2,7 +2,6 @@ package am24group6;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -75,32 +74,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Game() {
 
         // load font
-        InputStream fontStream = getClass().getResourceAsStream("/SuperLegendBoy.ttf");
-
-        try {
-            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(30f);
-        } catch (IOException | FontFormatException e) {
-            e.getMessage();
-        } finally {
-            try {
-                if (fontStream != null) {
-                    fontStream.close();
-                }
-            } catch (IOException e) {
-                e.getMessage();
-            }
-        }
+        superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
 
         // load images
         backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
         birbStartImage = new ImageIcon(getClass().getResource("/birb_hanging.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
-        // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-        // bottomObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Menu and adds mouse listener to this JPanel.
         menu = new Menu(this);
@@ -198,8 +178,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // Skriver ut resultatet.
         g.setColor(Color.white);
         g.setFont(superLegendBoy);
-        // g.setFont(new Font("Arial", Font.PLAIN, 32));
-        // g.setFont(superLegendBoy);
+
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
             g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
