@@ -68,6 +68,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     int mouseX;
     int mouseY;
     int level;
+    boolean highScoreLevel;
 
     enum GameState {
         MENU,
@@ -191,9 +192,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         if (gameOver) {
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
-            g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
+            g.drawString("Highscore : " + String.valueOf((int) HighScore.getHighScore(highScoreLevel)), 10, 70);
             if (highScore > highScoreBefore) {
                 highScoreBefore = highScore;
+                HighScore.saveHighscore(highScore, highScoreLevel);
                 playSoundEffect(2);
             }
             
@@ -375,6 +377,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.restart();
                 jump = -9;
                 openingSpace = frameHeight / 4;
+                highScoreLevel = true;
             }
             case 2 -> {
                 velocityX = -7;
@@ -383,6 +386,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.restart();
                 jump = -10;
                 openingSpace = frameHeight / 6;
+                highScoreLevel = false;
             }
         }
     
