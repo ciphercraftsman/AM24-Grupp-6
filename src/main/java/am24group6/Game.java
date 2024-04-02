@@ -191,13 +191,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setFont(superLegendBoy);
 
         if (gameOver) {
-            g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
-            g.drawString("Highscore : " + String.valueOf((int) HighScore.getHighScore(highScoreLevel)), 10, 70);
             if (highScore > highScoreBefore) {
                 highScoreBefore = highScore;
                 HighScore.saveHighscore(highScore, highScoreLevel);
                 playSoundEffect(2);
             }
+            g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
+            g.drawString("Highscore : " + String.valueOf((int) HighScore.getHighScore(highScoreLevel)), 10, 70);
             
         } else {
             g.drawString(String.valueOf((int) score), 10, 35);
