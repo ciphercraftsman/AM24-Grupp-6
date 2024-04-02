@@ -56,8 +56,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Timer pausTimer;
     
     double score;
-    double highScore = 0;
-    double highScoreBefore = 0;
+    double highScore;
     
     boolean gameStarted = false;
     boolean canRestart;
@@ -191,8 +190,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         g.setFont(superLegendBoy);
 
         if (gameOver) {
-            if (highScore > highScoreBefore) {
-                highScoreBefore = highScore;
+            if (score > highScore) {
+                highScore = score;
                 HighScore.saveHighscore(highScore, highScoreLevel);
                 playSoundEffect(2);
             }
@@ -234,9 +233,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // gameStarted = false;
         }
 
-        if (score > highScore) {
-            highScore = score;
-        }
+        
     }
 
     public boolean collision(Birb a, Obstacle b) {
@@ -378,6 +375,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 jump = -9;
                 openingSpace = frameHeight / 4;
                 highScoreLevel = true;
+                highScore = HighScore.getHighScore(highScoreLevel);
             }
             case 2 -> {
                 velocityX = -7;
@@ -387,6 +385,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 jump = -10;
                 openingSpace = frameHeight / 6;
                 highScoreLevel = false;
+                highScore = HighScore.getHighScore(highScoreLevel);
             }
         }
     
