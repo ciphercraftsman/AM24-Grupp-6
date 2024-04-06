@@ -64,7 +64,7 @@ public class Menu implements MouseListener, KeyListener {
         } else {
             g.setColor(Color.WHITE);
         }
-        g.drawString("Score", highscoreButton.x + 9, highscoreButton.y + 33);
+        g.drawString("Score", highscoreButton.x + 7, highscoreButton.y + 33);
         g2d.draw(highscoreButton);
         
         if (selectedOption == 3) {
@@ -159,7 +159,10 @@ public class Menu implements MouseListener, KeyListener {
                     actionListener.startGameWithLevel(2);
                     break;
                 case 2:
-                    System.out.println("Highscore");    
+                    System.out.println("Highscore");
+                    showHighscores();
+                    break;    
+                
                 case 3:
                     System.exit(0);
                     break;
@@ -177,5 +180,17 @@ public class Menu implements MouseListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
 
+    }
+
+    public void showHighscores() {
+        int easyHighscore = HighScore.getHighScore(true);
+        int hardHighscore = HighScore.getHighScore(false);
+
+        JOptionPane.showMessageDialog(null,
+        "Easy Highscore: " + easyHighscore + "\n" +
+        "Hard Highscore: " + hardHighscore,
+        "Highscores",
+        JOptionPane.INFORMATION_MESSAGE
+    );
     }
 }
