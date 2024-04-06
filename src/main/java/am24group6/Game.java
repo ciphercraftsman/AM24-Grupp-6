@@ -2,7 +2,6 @@ package am24group6;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -12,46 +11,55 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public static final int frameWidth = 384;
     public static final int frameHeight = 640;
 
-    // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
-    // classen.
-    Timer pausTimer;
-    boolean canRestart;
-
+    
     // Images
-    Image backgroundImage;
+    // Image backgroundImage;
+    Image backgroundGif;
+    Image dripstoneLayer;
+    Image rockLayer;
     Image birbImage;
+    Image birbStartImage;
     Image topObstacleImage;
     Image bottomObstacleImage;
     Image obstacleImage;
-
+    
     // Font
     Font superLegendBoy;
 
+    // Sound
+    Sound sound = new Sound();
+    
     // Birb placement
     final int birbX = frameWidth / 8;
-    final int birbY = frameHeight / 2;
-
+    final int birbY = 95; // frameHeight / 2;
+    
     // game logic
     Birb birb;
     int velocityY; // Justerar fågelns upp/ner fart.
     final int gravity = 1;
-
+    
     // Level dependant
     int velocityX; // Flyttar obstacles åt vänster (farten)
     int jump;
     int obstacleDistance = 0;
     int openingSpace;
-
+    
     ArrayList<Obstacle> obstacles;
-
+    
     MenuActionListener actionListener;
-
+    
+    // Timers
     Timer gameLoop;
     Timer placeObstacleTimer;
-
+    // Timer för att spelet ska frysa efter att fågeln dör, fortsätter i Game
+    // classen.
+    Timer pausTimer;
+    
     double score;
-    double highScore = 0;
-
+    double highScore;
+    
+    boolean gameStarted = false;
+    boolean canRestart;
     boolean gameOver;
     Menu menu;
     GameState gameState;
@@ -59,6 +67,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     int mouseX;
     int mouseY;
     int level;
+    boolean highScoreLevel;
 
     enum GameState {
         MENU,
@@ -68,24 +77,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Game() {
 
         // load font
-        try {
-            superLegendBoy = Font.createFont(Font.TRUETYPE_FONT, new File("/SuperLegendBoy.ttf")).deriveFont(30f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(superLegendBoy);
-
-        } catch (IOException | FontFormatException e) {
-            e.getMessage();
-        }
+        superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
 
         // load images
-        backgroundImage = new ImageIcon(getClass().getResource("/background.png")).getImage();
+        // backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
+        backgroundGif = new ImageIcon(getClass().getResource("/background.gif")).getImage();
+        dripstoneLayer = new ImageIcon(getClass().getResource("/dripstonelayer.png")).getImage();
+        rockLayer = new ImageIcon(getClass().getResource("/rocklayer.png")).getImage();
+        
+        birbStartImage = new ImageIcon(getClass().getResource("/birb_hanging.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
-        // Används inte än då vi bara har en typ av hinder.
-        // topObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
-        // bottomObstacleImage = new
-        // ImageIcon(getClass().getResource("./birbImage.png")).getImage();
 
         // Menu and adds mouse listener to this JPanel.
         menu = new Menu(this);
@@ -101,7 +103,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         setFocusable(true);
         gameState = GameState.MENU;
 
-        birb = new Birb(birbImage, birbX, birbY);
+        // birb = new Birb(birbImage, birbX, birbY);
+        birb = new Birb(null, birbX, birbY);
+
         obstacles = new ArrayList<Obstacle>();
 
         setPreferredSize(new Dimension(frameWidth, frameHeight));
@@ -134,19 +138,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     }
 
     public void placeObstacles() {
-        int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
-        int randomIndex = ThreadLocalRandom.current().nextInt(5);
-        int randomObstacleY = randomObstacleYHeights[randomIndex];
+        if (gameStarted) {
+            int[] randomObstacleYHeights = { -400, -350, -300, -250, -200, -150 };
+            int randomIndex = ThreadLocalRandom.current().nextInt(5);
+            int randomObstacleY = randomObstacleYHeights[randomIndex];
 
-        // Top obstacle
-        Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
-        topObstacle.y = randomObstacleY;
-        obstacles.add(topObstacle);
+            // Top obstacle
+            Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
+            topObstacle.y = randomObstacleY;
+            obstacles.add(topObstacle);
 
-        // Nedre obstacle
-        Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
-        bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
-        obstacles.add(bottomObstacle);
+            // Nedre obstacle
+            Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
+            bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
+            obstacles.add(bottomObstacle);
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -160,10 +166,18 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
     public void draw(Graphics g) {
         // background
-        g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
+        // g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(backgroundGif, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(dripstoneLayer, 0, 0, frameWidth, frameHeight, null);
+        g.drawImage(rockLayer, 0, 0, frameWidth, frameHeight, null);
 
-        // birb
-        g.drawImage(birb.img, birb.x, birb.y, birb.width, birb.height, null);
+        if (gameState == GameState.PLAYING && !gameStarted) {
+            // birb hanging before game started
+            g.drawImage(birbStartImage, birbX, birbY, 12, 30, null);
+        } else {
+            // birb
+            g.drawImage(birb.img, birb.x, birb.y, birb.width, birb.height, null);
+        }
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
@@ -173,11 +187,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         // Skriver ut resultatet.
         g.setColor(Color.white);
-        g.setFont(new Font("Arial", Font.PLAIN, 32));
-        // g.setFont(superLegendBoy);
+        g.setFont(superLegendBoy);
+
         if (gameOver) {
+            if (score > highScore) {
+                highScore = score;
+                HighScore.saveHighscore(highScore, highScoreLevel);
+                playSoundEffect(2);
+            }
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
-            g.drawString("Highscore : " + String.valueOf((int) highScore), 10, 70);
+            g.drawString("Highscore : " + String.valueOf((int) HighScore.getHighScore(highScoreLevel)), 10, 70);
+            
         } else {
             g.drawString(String.valueOf((int) score), 10, 35);
         }
@@ -203,17 +223,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // Om fågeln kraschar med obstacles = gameOver.
             if (collision(birb, obstacle)) {
                 gameOver = true;
+                // gameStarted = false;
             }
         }
 
         // GameOver om fågeln touchar rutans underkant
         if (birb.y > frameHeight) {
             gameOver = true;
+            // gameStarted = false;
         }
 
-        if (score > highScore) {
-            highScore = score;
-        }
+        
     }
 
     public boolean collision(Birb a, Obstacle b) {
@@ -229,15 +249,35 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         score = 0;
         gameOver = false;
         canRestart = false;
+        gameStarted = false;
+    }
+
+    public void playMusic(int i) {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+
+    public void stopMusic() {
+        sound.stop();
+    }
+
+    public void playSoundEffect(int i) {
+        sound.setFile(i);
+        sound.play();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        move();
+        if (gameStarted) {
+            move();
+        }
+
         repaint(); // anropar paintComponent()
 
         // Stoppar spelet när gameOver.
         if (gameOver) {
+            playSoundEffect(1);
             placeObstacleTimer.stop();
             gameLoop.stop();
             pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
@@ -247,10 +287,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
             if (gameOver && canRestart) {
                 startGame(level); // Starta om spelet med samma nivå
             } else {
+                birb.img = birbImage;
                 velocityY = jump;
+                playSoundEffect(0);
+                if (!gameStarted) {
+                    gameStarted = true;
+                    placeObstacleTimer.start();
+                }
             }
         } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             // Återgå till menyn oavsett spelets tillstånd
@@ -258,17 +305,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             setStartValues();
             obstacles.clear();
             repaint(); // Uppdatera gränssnittet för att visa menyn
-
-            // } else if (gameOver && e.getKeyCode() == KeyEvent.VK_ENTER) {
-            // // Kontrollera om spelet är över och användaren trycker på Enter
-            // if (menu.easyButton.contains(mouseX, mouseY)) {
-            // startGame(1); // Starta om spelet med lätt svårighetsgrad
-            // } else if (menu.hardButton.contains(mouseX, mouseY)) {
-            // startGame(2); // Starta om spelet med svår svårighetsgrad
-            // } else if (menu.quitButton.contains(mouseX, mouseY)) {
-            // // Avsluta applikationen
-            // System.exit(0);
-            // }
         }
     }
 
@@ -295,13 +331,41 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // }
     }
 
+    
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        // Implement mouseReleased functionality here
+    }
+    
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        // Implement mouseEntered functionality here
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        // Implement mouseExited functionality here
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        // Implement mouseDragged functionality here
+    }
+    
+    public void startGameWithLevel(int selectedLevel) {
+        // Implementera startGameWithLevel-metoden här
+        actionListener.startGameWithLevel(selectedLevel);
+    }
+
     private void startGame(int selectedLevel) {
-        System.out.println("START GAME");
+        System.out.println("GAME SCREEN OPENED");
         this.level = selectedLevel;
         gameState = GameState.PLAYING;
         obstacles.clear();
         setStartValues();
-
+    
+        // birb = new Birb(birbImage, birbX, birbY);
+    
         switch (level) {
             case 1 -> {
                 velocityX = -4;
@@ -310,6 +374,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.restart();
                 jump = -9;
                 openingSpace = frameHeight / 4;
+                highScoreLevel = true;
+                highScore = HighScore.getHighScore(highScoreLevel);
             }
             case 2 -> {
                 velocityX = -7;
@@ -318,24 +384,25 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.restart();
                 jump = -10;
                 openingSpace = frameHeight / 6;
+                highScoreLevel = false;
+                highScore = HighScore.getHighScore(highScoreLevel);
             }
         }
-
+    
         gameLoop.start();
-        placeObstacleTimer.start();
     }
-
+    
     @Override
     public void mouseMoved(MouseEvent e) {
         mouseX = e.getX();
         mouseY = e.getY();
     }
-
+    
     @Override
     public void mousePressed(MouseEvent e) {
         mouseX = e.getX();
         mouseY = e.getY();
-
+    
         if (gameState == GameState.MENU) {
             if (menu.easyButton.contains(mouseX, mouseY)) {
                 // Anropa startGame-metoden direkt för att starta spelet med lätt svårighetsgrad
@@ -348,7 +415,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 // Quit the application
                 System.exit(0);
             }
-
+    
         } else if (gameOver && canRestart) {
             // Restart the game if it's over and can be restarted
             setStartValues();
@@ -359,30 +426,5 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // Trigger jump when mouse is pressed
             velocityY = jump;
         }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        // Implement mouseReleased functionality here
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        // Implement mouseEntered functionality here
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        // Implement mouseExited functionality here
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        // Implement mouseDragged functionality here
-    }
-
-    public void startGameWithLevel(int selectedLevel) {
-        // Implementera startGameWithLevel-metoden här
-        actionListener.startGameWithLevel(selectedLevel);
     }
 }

@@ -20,6 +20,9 @@ public class Menu implements MouseListener, KeyListener {
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
 
+    // Font superLegendBoy;
+    Font superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
+
     public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 135, 250, 100, 50);
     public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 135, 350, 100, 50);
     public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
@@ -35,16 +38,9 @@ public class Menu implements MouseListener, KeyListener {
 
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, frameWidth, frameHeight);
-
         g.drawImage(menuImage, 0, 0, frameWidth, frameHeight, null);
+        g.setFont(superLegendBoy);
 
-        Font fnt0 = new Font("arial", Font.BOLD, 50);
-        g.setFont(fnt0);
-        g.setColor(Color.WHITE);
-        // g.drawString("Jumpy Birb", Game.WIDTH / 2, 100);
-
-        Font fnt1 = new Font("arial", Font.BOLD, 30);
-        g.setFont(fnt1);
         // Highlight the currently selected option
         if (selectedOption == 0) {
             g.setColor(Color.RED);
@@ -103,18 +99,18 @@ public class Menu implements MouseListener, KeyListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (easyButton.contains(e.getX(), e.getY())) {
-            System.out.println("Easy Mode");
-            // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
-            actionListener.startGameWithLevel(1);
-        } else if (hardButton.contains(e.getX(), e.getY())) {
-            System.out.println("Hard Mode");
-            // Anropa startGameWithLevel-metoden med svår svårighetsgrad
-            actionListener.startGameWithLevel(2);
-        } else if (quitButton.contains(e.getX(), e.getY())) {
-            // Avsluta applikationen
-            System.exit(0);
-        }
+        // if (easyButton.contains(e.getX(), e.getY())) {
+        //     System.out.println("Easy Mode");
+        //     // Anropa startGameWithLevel-metoden med lätt svårighetsgrad
+        //     actionListener.startGameWithLevel(1);
+        // } else if (hardButton.contains(e.getX(), e.getY())) {
+        //     System.out.println("Hard Mode");
+        //     // Anropa startGameWithLevel-metoden med svår svårighetsgrad
+        //     actionListener.startGameWithLevel(2);
+        // } else if (quitButton.contains(e.getX(), e.getY())) {
+        //     // Avsluta applikationen
+        //     System.exit(0);
+        // }
     }
 
     // Övriga metoder från MouseListener som måste implementeras
