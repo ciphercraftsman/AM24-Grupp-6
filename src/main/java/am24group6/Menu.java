@@ -22,9 +22,8 @@ public class Menu implements MouseListener, KeyListener {
 
     public Rectangle easyButton = new Rectangle(Game.WIDTH / 2 + 135, 250, 100, 50);
     public Rectangle hardButton = new Rectangle(Game.WIDTH / 2 + 135, 350, 100, 50);
-    public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
-    // public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 120, 250,
-    // 100, 50);
+    public Rectangle highscoreButton = new Rectangle(Game.WIDTH / 2 + 135, 450, 100, 50);
+    public Rectangle quitButton = new Rectangle(Game.WIDTH / 2 + 135, 550, 100, 50);
     private Game game;
 
     public Menu(Game game) {
@@ -63,14 +62,22 @@ public class Menu implements MouseListener, KeyListener {
         g.drawString("Hard", hardButton.x + 14, hardButton.y + 33);
         g2d.draw(hardButton);
 
+        
         if (selectedOption == 2) {
+            g.setColor(Color.RED);
+        } else {
+            g.setColor(Color.WHITE);
+        }
+        g.drawString("Score", highscoreButton.x + 9, highscoreButton.y + 33);
+        g2d.draw(highscoreButton);
+        
+        if (selectedOption == 3) {
             g.setColor(Color.RED);
         } else {
             g.setColor(Color.WHITE);
         }
         g.drawString("Quit", quitButton.x + 19, quitButton.y + 33);
         g2d.draw(quitButton);
-
         // switch (selectedOption) {
         // case 0:
         // g.setColor(Color.RED); // Set the color to red for the selected option
@@ -136,12 +143,12 @@ public class Menu implements MouseListener, KeyListener {
             System.out.println("Moving up");
             selectedOption--;
             if (selectedOption < 0) {
-                selectedOption = 2; // Wrap around to the last option
+                selectedOption = 3; // Wrap around to the last option
             }
         } else if (key == KeyEvent.VK_DOWN) {
             System.out.println("Moving down");
             selectedOption++;
-            if (selectedOption > 2) {
+            if (selectedOption > 3) {
                 selectedOption = 0; // Wrap around to the first option
             }
         } else if (key == KeyEvent.VK_ENTER) {
@@ -156,6 +163,8 @@ public class Menu implements MouseListener, KeyListener {
                     actionListener.startGameWithLevel(2);
                     break;
                 case 2:
+                    System.out.println("Highscore");    
+                case 3:
                     System.exit(0);
                     break;
             }
