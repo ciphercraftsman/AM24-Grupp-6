@@ -192,7 +192,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         if (gameOver) {
             if (score > highScore) {
                 highScore = score;
-                HighScore.saveHighscore(highScore, highScoreLevel);
+                saveHighscoreWithPlayerName(highScore, highScoreLevel);
                 playSoundEffect(2);
             }
             g.drawString("Score : " + String.valueOf((int) score), 10, 35); // x & y är kordinater för texten
@@ -427,4 +427,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             velocityY = jump;
         }
     }
+
+    public void saveHighscoreWithPlayerName(double score, boolean highScoreLevel) {
+        String playerName = JOptionPane.showInputDialog("Congratulations! You achieved a high score! Enter your name:");
+        HighScore.saveHighscore(playerName, score, highScoreLevel);
+    }
+    
 }

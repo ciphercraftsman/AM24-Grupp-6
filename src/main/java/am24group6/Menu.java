@@ -5,6 +5,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.*;
 
@@ -183,14 +186,35 @@ public class Menu implements MouseListener, KeyListener {
     }
 
     public void showHighscores() {
-        int easyHighscore = HighScore.getHighScore(true);
-        int hardHighscore = HighScore.getHighScore(false);
-
+        String[] easyHighscoreData = readHighscoreData(true);
+        String[] hardHighscoreData = readHighscoreData(false);
+    
         JOptionPane.showMessageDialog(null,
-        "Easy Highscore: " + easyHighscore + "\n" +
-        "Hard Highscore: " + hardHighscore,
-        "Highscores",
-        JOptionPane.INFORMATION_MESSAGE
-    );
+            "Easy Highscore: " + easyHighscoreData[0] + " - " + easyHighscoreData[1] + "\n" +
+            "Hard Highscore: " + hardHighscoreData[0] + " - " + hardHighscoreData[1],
+            "Highscores",
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
+    
+    private String[] readHighscoreData(boolean highScoreLevel) {
+        String[] highscoreData = {"No highscore", "0"};
+    
+        try (BufferedReader reader = new BufferedReader(new FileReader(highScoreLevel ? HighScore.FILE_EASY : HighScore.FILE_HARD))) {
+            String line = reader.readLine();
+            if (line != null) {
+                // Splitting the line into name and score based on space
+                String[] parts = line.split(" ");
+                if (parts.length == 2) {
+                    highscoreData[0] = parts[0];
+                    highscoreData[1] = parts[1];
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return highscoreData;
+    }
+    
 }
