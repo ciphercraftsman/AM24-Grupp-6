@@ -32,6 +32,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     // Birb placement
     final int birbX = frameWidth / 8;
     final int birbY = 95; // frameHeight / 2;
+
+    // Dripstone layer placement
+    int dripstoneLayerX = 0;
+    
+    // Rock layer placement
+    int rockLayerX = 0;
     
     // game logic
     Birb birb;
@@ -81,13 +87,16 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         // load images
         // backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
-        backgroundGif = new ImageIcon(getClass().getResource("/background.gif")).getImage();
+        backgroundGif = new ImageIcon(getClass().getResource("/background1.gif")).getImage();
         dripstoneLayer = new ImageIcon(getClass().getResource("/dripstonelayer.png")).getImage();
         rockLayer = new ImageIcon(getClass().getResource("/rocklayer.png")).getImage();
         
         birbStartImage = new ImageIcon(getClass().getResource("/birb_hanging.png")).getImage();
         birbImage = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
         obstacleImage = new ImageIcon(getClass().getResource("/obstacle.png")).getImage();
+
+        dripstoneLayerX = 0;
+        rockLayerX = 0;
 
         // Menu and adds mouse listener to this JPanel.
         menu = new Menu(this);
@@ -168,8 +177,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // background
         // g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
         g.drawImage(backgroundGif, 0, 0, frameWidth, frameHeight, null);
-        g.drawImage(dripstoneLayer, 0, 0, frameWidth, frameHeight, null);
-        g.drawImage(rockLayer, 0, 0, frameWidth, frameHeight, null);
+       
+        g.drawImage(dripstoneLayer, dripstoneLayerX, 0, frameWidth, frameHeight, null);
+        g.drawImage(dripstoneLayer, dripstoneLayerX + frameWidth, 0, frameWidth, frameHeight, null);
+        
+        g.drawImage(rockLayer, rockLayerX, 0, frameWidth, frameHeight, null);
+        g.drawImage(rockLayer, rockLayerX + frameWidth, 0, frameWidth, frameHeight, null);
 
         if (gameState == GameState.PLAYING && !gameStarted) {
             // birb hanging before game started
@@ -208,6 +221,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         velocityY += gravity;
         birb.y += velocityY;
         birb.y = Math.max(birb.y, 0);
+
+        // dripstone layer
+        dripstoneLayerX += velocityX + 2;
+
+        if (dripstoneLayerX <= -frameWidth) {
+            dripstoneLayerX = 0;
+        }
+
+        // rockLayer
+        rockLayerX += velocityX;
+
+        if (rockLayerX <= -frameWidth) {
+            rockLayerX = 0;
+        }
 
         // obstacles
         for (int i = 0; i < obstacles.size(); i++) {
