@@ -20,6 +20,11 @@ public class Menu implements MouseListener, KeyListener {
 
     Image menuImage = new ImageIcon(getClass().getResource("/menu.png")).getImage();
 
+    // Testa att animera introt:
+    Image logo = new ImageIcon(getClass().getResource("/logo.png")).getImage();
+    Image blueRock = new ImageIcon(getClass().getResource("/blue_rock.png")).getImage();
+    Image flappyBirb = new ImageIcon(getClass().getResource("/birb_flapping.gif")).getImage();
+
     // Font superLegendBoy;
     Font superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
 
