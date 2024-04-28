@@ -67,6 +67,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     boolean gameStarted = false;
     boolean canRestart;
     boolean gameOver;
+    boolean canPressKey = true;
     Menu menu;
     GameState gameState;
     MouseInput mouseInput;
@@ -128,6 +129,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 canRestart = true;
                 pausTimer.stop();
                 startGame(level); // Inte ultimat men gör så att meny-renderingen funkar
+                canPressKey = true;
             }
         });
 
@@ -274,6 +276,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         gameOver = false;
         canRestart = false;
         gameStarted = false;
+        canPressKey = true;
     }
 
     public void playMusic(int i) {
@@ -306,12 +309,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             gameLoop.stop();
             System.out.println("GAMELOOP STOPPED");
             pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
+            canPressKey = false;
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (gameState == GameState.PLAYING) {
+        if (gameState == GameState.PLAYING && canPressKey) {
 
             if (e.getKeyCode() == KeyEvent.VK_SPACE) {
     
