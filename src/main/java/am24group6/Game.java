@@ -8,12 +8,12 @@ import java.util.concurrent.*;
 import javax.swing.*;
 
 public class Game extends JPanel implements ActionListener, KeyListener, MouseListener, MouseMotionListener {
-    public static final int frameWidth = 384;
-    public static final int frameHeight = 640;
+
+    public static final int FRAME_WIDTH = 384;
+    public static final int FRAME_HEIGHT = 640;
 
     
     // Images
-    // Image backgroundImage;
     Image backgroundGif;
     Image dripstoneLayer;
     Image rockLayer;
@@ -30,8 +30,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     Sound sound = new Sound();
     
     // Birb placement
-    final int birbX = frameWidth / 8;
-    final int birbY = 95; // frameHeight / 2;
+    final int birbX = FRAME_WIDTH / 8;
+    final int birbY = 95;
 
     // Dripstone layer placement
     int dripstoneLayerX = 0;
@@ -86,7 +86,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         superLegendBoy = FontHandler.loadCustomFont(22f, "/SuperLegendBoy.ttf");
 
         // load images
-        // backgroundImage = new ImageIcon(getClass().getResource("/background2.png")).getImage();
         backgroundGif = new ImageIcon(getClass().getResource("/background1.gif")).getImage();
         dripstoneLayer = new ImageIcon(getClass().getResource("/dripstonelayer.png")).getImage();
         rockLayer = new ImageIcon(getClass().getResource("/rocklayer.png")).getImage();
@@ -117,21 +116,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
 
         obstacles = new ArrayList<Obstacle>();
 
-        setPreferredSize(new Dimension(frameWidth, frameHeight));
+        setPreferredSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
 
         setFocusable(true); // gör så det är denna klass som tar emot keyevents
         addKeyListener(this);
 
         // Paus funktionen när fågeln dör.
-        pausTimer = new Timer(500, new ActionListener() {
+        pausTimer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 canRestart = true;
                 pausTimer.stop();
+                startGame(level); // Inte ultimat men gör så att meny-renderingen funkar
             }
         });
-
-        System.out.println("SKAPA TIMER");
 
         // Place obstacles timer
         placeObstacleTimer = new Timer(obstacleDistance, new ActionListener() {
@@ -144,6 +142,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // game timer
         gameLoop = new Timer(1000 / 60, this);
         gameLoop.start();
+        System.out.println("GAMELOOP STARTED");
     }
 
     public void placeObstacles() {
@@ -153,12 +152,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             int randomObstacleY = randomObstacleYHeights[randomIndex];
 
             // Top obstacle
-            Obstacle topObstacle = new Obstacle(obstacleImage, frameWidth);
+            Obstacle topObstacle = new Obstacle(obstacleImage, FRAME_WIDTH);
             topObstacle.y = randomObstacleY;
             obstacles.add(topObstacle);
 
             // Nedre obstacle
-            Obstacle bottomObstacle = new Obstacle(obstacleImage, frameWidth);
+            Obstacle bottomObstacle = new Obstacle(obstacleImage, FRAME_WIDTH);
             bottomObstacle.y = topObstacle.y + bottomObstacle.height + openingSpace;
             obstacles.add(bottomObstacle);
         }
@@ -167,22 +166,22 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (gameState == GameState.MENU) {
-            menu.render(g, frameWidth, frameHeight);
+            // System.out.println("RENDERING MENU");
+            menu.render(g, FRAME_WIDTH, FRAME_HEIGHT);
         } else if (gameState == GameState.PLAYING) {
             draw(g);
         }
     }
 
     public void draw(Graphics g) {
-        // background
-        // g.drawImage(backgroundImage, 0, 0, frameWidth, frameHeight, null);
-        g.drawImage(backgroundGif, 0, 0, frameWidth, frameHeight, null);
+        // background images (dripstone and rock layers need two copies for side scrolling animation)
+        g.drawImage(backgroundGif, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, null);
        
-        g.drawImage(dripstoneLayer, dripstoneLayerX, 0, frameWidth, frameHeight, null);
-        g.drawImage(dripstoneLayer, dripstoneLayerX + frameWidth, 0, frameWidth, frameHeight, null);
+        g.drawImage(dripstoneLayer, dripstoneLayerX, 0, FRAME_WIDTH, FRAME_HEIGHT, null);
+        g.drawImage(dripstoneLayer, dripstoneLayerX + FRAME_WIDTH, 0, FRAME_WIDTH, FRAME_HEIGHT, null);
         
-        g.drawImage(rockLayer, rockLayerX, 0, frameWidth, frameHeight, null);
-        g.drawImage(rockLayer, rockLayerX + frameWidth, 0, frameWidth, frameHeight, null);
+        g.drawImage(rockLayer, rockLayerX, 0, FRAME_WIDTH, FRAME_HEIGHT, null);
+        g.drawImage(rockLayer, rockLayerX + FRAME_WIDTH, 0, FRAME_WIDTH, FRAME_HEIGHT, null);
 
         if (gameState == GameState.PLAYING && !gameStarted) {
             // birb hanging before game started
@@ -225,14 +224,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         // dripstone layer
         dripstoneLayerX += velocityX + 2;
 
-        if (dripstoneLayerX <= -frameWidth) {
+        if (dripstoneLayerX <= -FRAME_WIDTH) {
             dripstoneLayerX = 0;
         }
 
         // rockLayer
         rockLayerX += velocityX;
 
-        if (rockLayerX <= -frameWidth) {
+        if (rockLayerX <= -FRAME_WIDTH) {
             rockLayerX = 0;
         }
 
@@ -250,14 +249,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             // Om fågeln kraschar med obstacles = gameOver.
             if (collision(birb, obstacle)) {
                 gameOver = true;
-                // gameStarted = false;
             }
         }
 
         // GameOver om fågeln touchar rutans underkant
-        if (birb.y > frameHeight) {
+        if (birb.y > FRAME_HEIGHT) {
             gameOver = true;
-            // gameStarted = false;
         }
 
         
@@ -307,31 +304,37 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             playSoundEffect(1);
             placeObstacleTimer.stop();
             gameLoop.stop();
+            System.out.println("GAMELOOP STOPPED");
             pausTimer.start(); // startar en paus timer när fågeln kraschar på 0,5sek
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+        if (gameState == GameState.PLAYING) {
 
-            if (gameOver && canRestart) {
-                startGame(level); // Starta om spelet med samma nivå
-            } else {
-                birb.img = birbImage;
-                velocityY = jump;
-                playSoundEffect(0);
-                if (!gameStarted) {
-                    gameStarted = true;
-                    placeObstacleTimer.start();
+            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+    
+                if (gameOver && canRestart) {
+                    startGame(level); // Starta om spelet med samma nivå
+                } else {
+                    birb.img = birbImage;
+                    velocityY = jump;
+                    playSoundEffect(0);
+                    if (!gameStarted) {
+                        gameStarted = true;
+                        placeObstacleTimer.start();
+                    }
                 }
+            } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                // Återgå till menyn oavsett spelets tillstånd
+                gameState = GameState.MENU;
+                setStartValues();
+                obstacles.clear();
+                System.out.println("GOING TO MENU");
+                // reset menu values
+                repaint(); // Uppdatera gränssnittet för att visa menyn
             }
-        } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            // Återgå till menyn oavsett spelets tillstånd
-            gameState = GameState.MENU;
-            setStartValues();
-            obstacles.clear();
-            repaint(); // Uppdatera gränssnittet för att visa menyn
         }
     }
 
@@ -400,7 +403,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.setDelay(obstacleDistance);
                 placeObstacleTimer.restart();
                 jump = -9;
-                openingSpace = frameHeight / 4;
+                openingSpace = FRAME_HEIGHT / 4;
                 highScoreLevel = true;
                 highScore = HighScore.getHighScore(highScoreLevel);
             }
@@ -410,13 +413,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
                 placeObstacleTimer.setDelay(obstacleDistance);
                 placeObstacleTimer.restart();
                 jump = -10;
-                openingSpace = frameHeight / 6;
+                openingSpace = FRAME_HEIGHT / 6;
                 highScoreLevel = false;
                 highScore = HighScore.getHighScore(highScoreLevel);
             }
         }
     
         gameLoop.start();
+        System.out.println("GAMELOOP STARTED");
     }
     
     @Override
@@ -448,6 +452,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
             setStartValues();
             obstacles.clear();
             gameLoop.start();
+            System.out.println("GAMELOOP STARTED");
             placeObstacleTimer.start();
         } else {
             // Trigger jump when mouse is pressed
