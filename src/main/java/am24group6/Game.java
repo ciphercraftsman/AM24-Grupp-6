@@ -123,7 +123,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, MouseLi
         addKeyListener(this);
 
         // Paus funktionen när fågeln dör.
-        pausTimer = new Timer(1000, new ActionListener() {
+        pausTimer = new Timer(1500, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 canRestart = true;
